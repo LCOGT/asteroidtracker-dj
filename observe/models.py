@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from datetime import datetime
 
 OBJECT_TYPES = (
                 ('N','NEO'),
@@ -35,7 +36,11 @@ class Asteroid(models.Model):
     arc_length          = models.FloatField('Length of observed arc (days)', blank=True, null=True)
     exposure            = models.IntegerField(default=0)
     filter_name         = models.CharField(max_length=10)
-
+    start               = model.DateTimeField(default=datetime.utcnow())
+    end                 = model.DateTimeField(default=datetime.utcnow())
+    instrument          = models.CharField(max_length=30)
+    aperture            = models.CharField(max_length=3)
+    binning             = models.IntegerField(default=2)
 
 
 class Request(models.Model):
