@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="inner cover">
+  <h1 class="cover-heading">{{asteroid.name}}</h1>
+  {% if asteroid.active %}
+  <video  controls>
+     <source src="{{asteroid.timelapse_url}}" type="video/mp4">
+  Your browser does not support the video tag.
+  </video>
+{% endif %}
+    <h3>Join this campaign!</h3>
+    <form action="" method="post">
+      <div class="input-group">
+      <input type="text" name="user_name" class="form-control" placeholder="Email address..." />
+      <span class="input-group-btn">
+        <input type=submit value="Join!" class="btn btn-default" />
+      </span>
+    </div>
+    </form>
+    <h3>About</h3>
+    <p class="lead">{{asteroid.information|safe}}</p>
+  </div>
+</div>
+{% endblock %}

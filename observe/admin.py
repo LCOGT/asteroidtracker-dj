@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from observe.models import Asteroid
+
+admin.site.register(Asteroid)

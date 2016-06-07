@@ -30,10 +30,10 @@ def process_observation_request(user_request):
         return False, r.content
 
 
-def format_request(asteroid_name):
+def format_request(asteroid_id):
 
     try:
-        asteroid = Asteroid.objects.get(name=asteroid_name)
+        asteroid = Asteroid.objects.get(id=asteroid_id)
     except:
         raise
 

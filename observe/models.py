@@ -36,11 +36,19 @@ class Asteroid(models.Model):
     arc_length          = models.FloatField('Length of observed arc (days)', blank=True, null=True)
     exposure            = models.IntegerField(default=0)
     filter_name         = models.CharField(max_length=10)
-    start               = model.DateTimeField(default=datetime.utcnow())
-    end                 = model.DateTimeField(default=datetime.utcnow())
+    exposure_count      = models.IntegerField(default=1)
+    start               = models.DateTimeField(default=datetime.utcnow())
+    end                 = models.DateTimeField(default=datetime.utcnow())
     instrument          = models.CharField(max_length=30)
     aperture            = models.CharField(max_length=3)
     binning             = models.IntegerField(default=2)
+    information         = models.TextField(blank=True, null=True)
+    teaser              = models.CharField(max_length=120)
+    image               = models.TextField(default="no-image.jpg")
+    timelapse_url       = models.URLField()
+
+    def __unicode__(self):
+        return self.name
 
 
 class Request(models.Model):

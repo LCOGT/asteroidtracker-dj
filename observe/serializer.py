@@ -13,13 +13,11 @@ class RequestSerializer(serializers.Serializer):
     """
     This serializer POSTing parameters to the scheduler the api.
     """
-    asteroid_name = serializers.CharField()
     user_name = serializers.CharField()
 
     def save(self, *args, **kwargs):
-        params = self.data
-        obs_params = request_format(params['asteroid_name'])
-        resp_status, resp_msg = process_observation_request(params=obs_params, cookie_id=kwargs['cookie_id'])
+        obs_params = request_format(kwargs['asteroid_id'])
+        resp_status, resp_msg = process_observation_request(params=obs_params)
         if resp_status:
             return Response('Success', status=status.HTTP_201_CREATED)
         else:

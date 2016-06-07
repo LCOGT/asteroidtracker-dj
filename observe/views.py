@@ -1,23 +1,25 @@
-from messierbingo.models import MessierObject, Telescope
-from rest_framework import viewsets, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from django.shortcuts import render
 from django.conf import settings
-from .serializers import ImageSerializer, RequestSerializer
-import requests
-from django.contrib.auth.forms import AuthenticationForm
+from django.core.urlresolvers import reverse
+from django.views.generic.edit import UpdateView
+
+from observe.models import Asteroid
 
 
-class ScheduleView(APIView):
+def home(request):
+    asteroids = Asteroid.objects.all()
+    return render(request, 'observe/home.html', {'asteroids':asteroids})
+
+class AsteroidView(UpdateView):
     """
     Schedule observations on LCOGT given a full set of observing parameters
     """
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    model = Asteroid
+    template_name = 'observe/asteroid.html'
+    fields = ['information','name']
 
     def post(self, request, format=None):
-        ser = RequestSerializer(data=request.data)
+        resp_status, resp_msg = process_observation_request(params=obs_params)
         if not ser.is_valid(raise_exception=True):
             return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
         else:

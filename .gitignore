@@ -60,3 +60,10 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# Databases
+*.db
+*.sqlite3
+
+# Local setup
+local_settings.py

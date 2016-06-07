@@ -10,7 +10,7 @@ ADMINS = (
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 PRODUCTION = True if CURRENT_PATH.startswith('/var/www') else False
-DEBUG = os.environ.get('DEBUG', True)
+DEBUG = False
 
 PREFIX = os.environ.get('PREFIX', '')
 FORCE_SCRIPT_NAME = PREFIX
@@ -20,10 +20,10 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'NAME': os.environ.get('MESSIER_DB_NAME', ''),
-        "USER": os.environ.get('MESSIER_DB_USER', ''),
-        "PASSWORD": os.environ.get('MESSIER_DB_PASSWD', ''),
-        "HOST": os.environ.get('MESSIER_DB_HOST', ''),
+        'NAME': os.environ.get('ASTEROIDDAY_DB_NAME', ''),
+        "USER": os.environ.get('ASTEROIDDAY_DB_USER', ''),
+        "PASSWORD": os.environ.get('ASTEROIDDAY_DB_PASSWD', ''),
+        "HOST": os.environ.get('ASTEROIDDAY_DB_HOST', ''),
         "OPTIONS": {'init_command': 'SET storage_engine=INNODB'} if PRODUCTION else {},
         "ENGINE": "django.db.backends.mysql",
         }
@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'observe'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -132,10 +133,16 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
+STATIC_ROOT = '/var/www/html/static/'
+STATIC_URL = PREFIX + '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR,'core'),]
 
-STATIC_URL = '/static/'
+PROPOSAL_USER = os.environ.get('ASTEROIDDAY_API_USER', '')
+PROPOSAL_PASSWD = os.environ.get('ASTEROIDDAY_API_PASSWD', '')
 
-PROPOSAL_USER = os.environ.
-PROPOSAL_PASSWD =
+if not CURRENT_PATH.startswith('/var/www'):
+    try:
+        from local_settings import *
+    except ImportError as e:
+        if "local_settings" not in str(e):
+            raise e
