@@ -16,12 +16,13 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from observe.views import AsteroidView, home
+from observe.views import AsteroidView, AsteroidSchedule, home
 from observe.models import Asteroid
 
 
 urlpatterns = [
     url(r'^$', home , name='home'),
     url(r'asteroid/(?P<pk>[0-9]+)/$', AsteroidView.as_view(), name='asteroid_detail'),
+    url(r'asteroid/(?P<pk>[0-9]+)/submit/$', AsteroidSchedule.as_view(), name='asteroid_schedule'),
     url(r'^admin/', admin.site.urls),
 ]

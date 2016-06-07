@@ -10,7 +10,8 @@
   </video>
 {% endif %}
     <h3>Join this campaign!</h3>
-    <form action="" method="post">
+    <form action="{% url 'asteroid_schedule' asteroid.id %}" method="post">
+      {% csrf_token%}
       <div class="input-group">
       <input type="text" name="user_name" class="form-control" placeholder="Email address..." />
       <span class="input-group-btn">
