@@ -1,5 +1,6 @@
 from django.contrib.sessions.backends.db import SessionStore
-import requests
+import httplib
+import urllib
 import logging
 import json
 from django.conf import settings
@@ -13,29 +14,33 @@ def process_observation_request(user_request):
     '''
     Send the observation parameters and the authentication cookie to the Scheduler API
     '''
-    client = requests.session()
     json_user_request = json.dumps(user_request)
     params = {
             'proposal_id'   : 'LCOEPO2014B-010',
             'user_id'       : settings.PROPOSAL_USER,
             'password'      : settings.PROPOSAL_PASSWD,
            'request_data' : json_user_request}
-
+    enc_params = urllib.urlencode(params)
     url = 'https://lcogt.net/observe/service/request/submit'
-    r = client.post(url, data=params)
-    if r.status_code == 200:
+    conn = httplib.HTTPSConnection("lcogt.net")
+    headers = {'Content-type': 'application/x-www-form-urlencoded'}
+    conn.request("POST", "/observe/service/request/submit", enc_params, headers)
+    conn_response = conn.getresponse()
+
+    # The status can tell you if sending the request failed or not. 200 or 203 would mean success, 400 or anything else fail
+    status_code = conn_response.status
+
+    if status_code == 200:
+        response = conn_response.read()
+        response = json.loads(response)
+        logger.debug(response)
         return True, False
     else:
-        logger.error(r.content)
-        return False, r.content
+        logger.error(conn_response)
+        return False, conn_response
 
 
-def format_request(asteroid_id):
-
-    try:
-        asteroid = Asteroid.objects.get(id=asteroid_id)
-    except:
-        raise
+def format_request(asteroid):
 
     # this selects any telescope on the 1 meter network
     location = {
@@ -45,7 +50,7 @@ def format_request(asteroid_id):
     molecule = {
       # Required fields
     'exposure_time'   : asteroid.exposure,  # Exposure time, in secs
-    'exposure_count'  : 1,  # The number of consecutive exposures
+    'exposure_count'  : asteroid.exposure_count,  # The number of consecutive exposures
     'filter'          : asteroid.filter_name,  # The generic filter name
     # Optional fields. Defaults are as below.
     # fill_window should be defined as True on a maximum of one molecule per request, or you should receive an error when scheduling
@@ -62,11 +67,11 @@ def format_request(asteroid_id):
     # define the target
     target = {
         'name'              : asteroid.name,
-        'type'              : asteroid.type,
+        'type'              : asteroid.source_type,
         'orbinc'            : asteroid.orbinc,
         'argofperih'        : asteroid.argofperih,
         'longascnode'       : asteroid.longascnode,
-        'epochofel'         : asteroid.epochofel,
+        'epochofel'         : asteroid.epochofel_mjd(),
         'eccentricity'       : asteroid.eccentricity,
         'meananom'           : asteroid.meananom,
         'meandist'           : asteroid.meandist,
@@ -74,7 +79,7 @@ def format_request(asteroid_id):
 
     # this is the actual window
     window = {
-          'start' : str(asteroid.start)
+          'start' : str(asteroid.start),
           'end' : str(asteroid.end)
     }
 
@@ -87,6 +92,7 @@ def format_request(asteroid_id):
     "target" : target,
     "type" : "request",
     "windows" : [window],
+    "group_id" : "Asteroid_Day_2016_%s" % asteroid.name
     }
 
     user_request = {

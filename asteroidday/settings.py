@@ -130,7 +130,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 STATIC_ROOT = '/var/www/html/static/'
@@ -139,6 +139,45 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR,'core'),]
 
 PROPOSAL_USER = os.environ.get('ASTEROIDDAY_API_USER', '')
 PROPOSAL_PASSWD = os.environ.get('ASTEROIDDAY_API_PASSWD', '')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format' : "[%(asctime)s] %(levelname)s %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'neox.log',
+            'formatter': 'verbose',
+            'filters': ['require_debug_false']
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        }
+    },
+    'loggers': {
+        'asteroid': {
+            'handlers':['console'],
+            'level' : 'DEBUG'
+        }
+    }
+}
 
 if not CURRENT_PATH.startswith('/var/www'):
     try:

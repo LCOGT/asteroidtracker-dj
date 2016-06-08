@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 from django.db import models
 from datetime import datetime
 
+from astropy.time import Time
+
+
 OBJECT_TYPES = (
                 ('N','NEO'),
                 ('A','Asteroid'),
@@ -31,9 +34,6 @@ class Asteroid(models.Model):
     eccentricity        = models.FloatField('Eccentricity',blank=True, null=True)
     meandist            = models.FloatField('Mean distance (AU)', blank=True, null=True, help_text='for asteroids')
     meananom            = models.FloatField('Mean Anomaly (deg)', blank=True, null=True, help_text='for asteroids')
-    perihdist           = models.FloatField('Perihelion distance (AU)', blank=True, null=True, help_text='for comets')
-    epochofperih        = models.DateTimeField('Epoch of perihelion', blank=True, null=True, help_text='for comets')
-    arc_length          = models.FloatField('Length of observed arc (days)', blank=True, null=True)
     exposure            = models.IntegerField(default=0)
     filter_name         = models.CharField(max_length=10)
     exposure_count      = models.IntegerField(default=1)
@@ -44,8 +44,29 @@ class Asteroid(models.Model):
     binning             = models.IntegerField(default=2)
     information         = models.TextField(blank=True, null=True)
     teaser              = models.CharField(max_length=120)
-    image               = models.TextField(default="no-image.jpg")
+    image               = models.CharField(max_length=50, default="no-image.jpg")
     timelapse_url       = models.URLField()
+
+    def epochofel_mjd(self):
+        mjd = None
+        try:
+            t = Time(self.epochofel.isoformat(), format='isot', scale='tt')
+            mjd = t.mjd
+        except:
+            pass
+        return mjd
+
+    def epochofperih_mjd(self):
+        mjd = None
+        try:
+            t = Time(self.epochofperih.isoformat(), format='isot', scale='tt')
+            mjd = t.mjd
+        except:
+            pass
+        return mjd
+
+    def text_name(self):
+        return self.name.replace(" ","_")
 
     def __unicode__(self):
         return self.name
