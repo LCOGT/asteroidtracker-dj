@@ -20,6 +20,12 @@ OBJECT_TYPES = (
                 ('J','Artificial satellite')
             )
 
+STATUS_CHOICES = (
+                ('P','Pending'),
+                ('C','Completed'),
+                ('S','Scheduled'),
+                )
+
 ELEMENTS_TYPES = (('MPC_MINOR_PLANET','MPC Minor Planet'),('MPC_COMET','MPC Comet'))
 
 class Asteroid(models.Model):
@@ -74,8 +80,11 @@ class Asteroid(models.Model):
 
 class Request(models.Model):
     track_num           = models.CharField(max_length=10)
-    status              = models.CharField(max_length=1)
-    update_time         = models.DateTimeField(blank=True, null=True)
-    email               = models.CharField(max_length=150)
-    twitter             = models.CharField(max_length=15)
-    asteroids           = models.ForeignKey(Asteroid)
+    status              = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    update_time         = models.DateTimeField(default=datetime.utcnow())
+    email               = models.CharField(max_length=150, blank=True, null=True)
+    twitter             = models.CharField(max_length=15, blank=True, null=True)
+    asteroid            = models.ForeignKey(Asteroid)
+
+    def __unicode__(self):
+        return "%s for %s is %s" % (self.track_num, self.email, self.status)

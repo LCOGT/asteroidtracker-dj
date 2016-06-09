@@ -1,7 +1,25 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<div class="inner cover">
+
+<div class="site-wrapper">
+
+  <div class="site-wrapper-inner">
+
+    <div class="cover-container">
+
+        <div class="inner">
+          <h3 class="masthead-brand">Asteroid Day 2016</h3>
+          <nav>
+            <ul class="nav masthead-nav">
+              <li><a href="{% url 'home' %}">Home</a></li>
+              <li><a href="http://lcogt.net/about/">About LCOGT</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+          </nav>
+        </div>
+
+<div class="inner">
   <h1 class="cover-heading">{{asteroid.name}}</h1>
   {% if asteroid.active %}
   <video  controls>

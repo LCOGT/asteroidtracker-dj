@@ -1,6 +1,7 @@
 from django.contrib.sessions.backends.db import SessionStore
 import httplib
 import urllib
+import requests
 import logging
 import json
 from django.conf import settings
@@ -10,13 +11,36 @@ from observe.models import Asteroid
 
 logger = logging.getLogger('asteroid')
 
+def submit_scheduler_api(params):
+    '''
+    Send the observation parameters and the authentication cookie to the Scheduler API
+    '''
+    client = requests.session()
+
+    url = 'https://lcogt.net/observe/auth/accounts/login/'
+    r = requests.get(url)
+    token = r.cookies['csrftoken']
+    r = client.post(url, data={'username':settings.PROPOSAL_USER,'password':settings.PROPOSAL_PASSWD, 'csrfmiddlewaretoken' : token}, cookies={'csrftoken':token})
+    url = 'https://lcogt.net/observe/service/request/submit'
+
+    user_request = {'proposal': 'LCOEPO2014B-010', 'request_data':params}
+    r = client.post(url, data=user_request, cookies=client.cookies)
+    client.close()
+    if r.status_code == 200:
+        tracking_num = r.json()['id']
+        logger.debug('Request submitted - %s' % tracking_num)
+        return True, tracking_num
+    else:
+        logger.error(r.content)
+        return False, r.content
+
 def process_observation_request(user_request):
     '''
     Send the observation parameters and the authentication cookie to the Scheduler API
     '''
     json_user_request = json.dumps(user_request)
     params = {
-            'proposal_id'   : 'LCOEPO2014B-010',
+            'proposal'   : 'LCOEPO2014B-010',
             'user_id'       : settings.PROPOSAL_USER,
             'password'      : settings.PROPOSAL_PASSWD,
            'request_data' : json_user_request}
@@ -67,14 +91,15 @@ def format_request(asteroid):
     # define the target
     target = {
         'name'              : asteroid.name,
-        'type'              : asteroid.source_type,
+        'type'              : 'NON_SIDEREAL',
+        'scheme'            : 'MPC_MINOR_PLANET',
         'orbinc'            : asteroid.orbinc,
         'argofperih'        : asteroid.argofperih,
         'longascnode'       : asteroid.longascnode,
         'epochofel'         : asteroid.epochofel_mjd(),
-        'eccentricity'       : asteroid.eccentricity,
-        'meananom'           : asteroid.meananom,
-        'meandist'           : asteroid.meandist,
+        'eccentricity'      : asteroid.eccentricity,
+        'meananom'          : asteroid.meananom,
+        'meandist'          : asteroid.meandist,
     }
 
     # this is the actual window
@@ -92,12 +117,12 @@ def format_request(asteroid):
     "target" : target,
     "type" : "request",
     "windows" : [window],
-    "group_id" : "Asteroid_Day_2016_%s" % asteroid.name
     }
 
     user_request = {
     "operator" : "single",
     "requests" : [request],
-    "type" : "compound_request"
+    "type" : "compound_request",
+    # "group_id" : "Asteroid_Day_2016_%s" % asteroid.name
     }
-    return user_request
+    return json.dumps(user_request)

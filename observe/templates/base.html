@@ -27,34 +27,17 @@
 
   <body>
 
-    <div class="site-wrapper">
-
-      <div class="site-wrapper-inner">
-
-        <div class="cover-container">
-
-          <div class="masthead clearfix">
-            <div class="inner">
-              <h3 class="masthead-brand">Asteroid Day 2016</h3>
-              <nav>
-                <ul class="nav masthead-nav">
-                  <li class="active"><a href="{% url 'home' %}">Home</a></li>
-                  <li><a href="http://lcogt.net/about/">About LCOGT</a></li>
-                  <li><a href="#">Contact</a></li>
-                </ul>
-              </nav>
-            </div>
-          </div>
-
 {% block main %}
+
+
 
 {% endblock %}
 
-          <div class="mastfoot">
+          <footer>
             <div class="inner">
               <p>&copy; {% now "Y" %} Las Cumbres Observatory Global Telescope Network, Inc.</p>
             </div>
-          </div>
+          </footer>
 
         </div>
 
