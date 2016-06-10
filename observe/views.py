@@ -5,13 +5,16 @@ from django.views.generic.detail import DetailView
 from django.views.generic import FormView
 from django import forms
 from django.http import Http404
+from datetime import datetime
 
-from observe.schedule import format_request, submit_scheduler_api
+from observe.schedule import format_request, submit_scheduler_api, check_request_api
 
 from observe.models import Asteroid, Request
 import logging
 
 logger = logging.getLogger('asteroid')
+state_options = {'PENDING' : 'P', 'COMPLETED' :'C', 'CANCELED':'N', 'FAILED':'F', 'UNSCHEDULABLE':'F'}
+
 
 def home(request):
     asteroids = Asteroid.objects.all()
@@ -40,17 +43,26 @@ class AsteroidSchedule(FormView):
             raise Http404("Asteroid does not exist")
 
     def form_valid(self, form):
-        process_form(self.body, form.cleaned_data)
-        return super(AsteroidSchedule, self).form_valid(form)
+        resp = process_form(self.body, form.cleaned_data)
+        if resp:
+            self.success_url = reverse_lazy('asteroid_detail', kwargs={'pk':self.body.id})
+            return render(self.request, 'observe/asteroid.html', {'asteroid':self.body, 'user_request':resp})
+        else:
+            return super(AsteroidSchedule, self).form_valid(form)
 
-def update_status(tracking_num):
-    return
+def update_status(req):
+    status, frames = check_request_api(req.track_num)
+    logger.debug(status)
+    req.status = state_options[status['state']]
+    req.update = datetime.utcnow()
+    req.save()
+    return frames
 
 
 def send_request(asteroid, form):
     obs_params = format_request(asteroid)
-    #resp_status, resp_msg = submit_scheduler_api(obs_params)
-    resp_status, resp_msg = (True, '999')
+    resp_status, resp_msg = submit_scheduler_api(obs_params)
+    #resp_status, resp_msg = (True, '999')
     if resp_status:
         req_params = {
             'track_num' : resp_msg,
@@ -63,10 +75,12 @@ def send_request(asteroid, form):
         logger.debug('Saved request %s' % r)
     else:
         logger.error('Request not scheduled: %s' % resp_msg)
-    return
+    return None
 
 def process_form(asteroid, form):
     try:
         req = Request.objects.get(asteroid=asteroid, email=form['user_name'])
     except Request.DoesNotExist:
         return send_request(asteroid, form)
+    frames = update_status(req)
+    return {'frames' :frames, 'status':req}

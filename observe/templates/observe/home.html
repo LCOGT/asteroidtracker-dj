@@ -2,27 +2,8 @@
 {% load staticfiles %}
 
 {% block main %}
-<div class="site-wrapper">
 
-  <div class="site-wrapper-inner">
-
-    <div class="cover-container">
-
-      <div class="masthead clearfix">
-        <div class="inner">
-          <h3 class="masthead-brand">Asteroid Day 2016</h3>
-          <nav>
-            <ul class="nav masthead-nav">
-              <li class="active"><a href="{% url 'home' %}">Home</a></li>
-              <li><a href="http://lcogt.net/about/">About LCOGT</a></li>
-              <li><a href="#">Contact</a></li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-
-          <div class="inner cover">
-            <h1 class="cover-heading">Asteroid Day - June 30th, 2016</h1>
+            <h1>Asteroid Day - June 30th, 2016</h1>
             <p class="lead">Join our international campaign to observe these asteroids for Asteroid Day 2016.</p>
             <div class="panels-wrapper">
               <div class="row panels">
@@ -42,5 +23,4 @@
                 {% endfor %}
               </div>
             </div>
-          </div>
 {% endblock %}

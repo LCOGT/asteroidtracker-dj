@@ -24,6 +24,8 @@ STATUS_CHOICES = (
                 ('P','Pending'),
                 ('C','Completed'),
                 ('S','Scheduled'),
+                ('N','Canceled'),
+                ('F','Failed')
                 )
 
 ELEMENTS_TYPES = (('MPC_MINOR_PLANET','MPC Minor Planet'),('MPC_COMET','MPC Comet'))
@@ -52,6 +54,8 @@ class Asteroid(models.Model):
     teaser              = models.CharField(max_length=120)
     image               = models.CharField(max_length=50, default="no-image.jpg")
     timelapse_url       = models.URLField()
+    num_observations    = models.IntegerField(default=0)
+    last_update         = models.DateTimeField(default=datetime.utcnow())
 
     def epochofel_mjd(self):
         mjd = None
@@ -81,7 +85,7 @@ class Asteroid(models.Model):
 class Request(models.Model):
     track_num           = models.CharField(max_length=10)
     status              = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    update_time         = models.DateTimeField(default=datetime.utcnow())
+    last_update         = models.DateTimeField(default=datetime.utcnow())
     email               = models.CharField(max_length=150, blank=True, null=True)
     twitter             = models.CharField(max_length=15, blank=True, null=True)
     asteroid            = models.ForeignKey(Asteroid)

@@ -8,7 +8,6 @@ from django.conf import settings
 
 from observe.models import Asteroid
 
-
 logger = logging.getLogger('asteroid')
 
 def submit_scheduler_api(params):
@@ -33,6 +32,27 @@ def submit_scheduler_api(params):
     else:
         logger.error(r.content)
         return False, r.content
+
+def check_request_api(tracking_num):
+    response = requests.post(
+      'https://lcogt.net/observe/api/api-token-auth/',
+      data = {'username':settings.PROPOSAL_USER, 'password':settings.PROPOSAL_PASSWD}
+    ).json()
+
+    token = response.get('token')
+
+    # Store the Authorization header
+    headers = {'Authorization': 'Token ' + token}
+
+    # Make an authenticated request with our headers
+    url = 'https://lcogt.net/observe/api/user_requests/%s/' % tracking_num
+    response = requests.get(url, headers=headers).json()
+
+    #frames_url = 'https://lcogt.net/observe/api/requests/%s/frames/'
+    #frames = requests.get(url, headers=headers).json()
+    frames = None
+    return response, frames
+
 
 def process_observation_request(user_request):
     '''

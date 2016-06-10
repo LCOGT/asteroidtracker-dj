@@ -2,31 +2,40 @@
 
 {% block main %}
 
-<div class="site-wrapper">
-
-  <div class="site-wrapper-inner">
-
-    <div class="cover-container">
-
-        <div class="inner">
-          <h3 class="masthead-brand">Asteroid Day 2016</h3>
-          <nav>
-            <ul class="nav masthead-nav">
-              <li><a href="{% url 'home' %}">Home</a></li>
-              <li><a href="http://lcogt.net/about/">About LCOGT</a></li>
-              <li><a href="#">Contact</a></li>
-            </ul>
-          </nav>
-        </div>
-
-<div class="inner">
-  <h1 class="cover-heading">{{asteroid.name}}</h1>
+<div class="row">
+  <h1>{{asteroid.name}}</h1>
+</div>
+<div class="row">
+  <div class="col-md-8">
   {% if asteroid.active %}
   <video  controls>
      <source src="{{asteroid.timelapse_url}}" type="video/mp4">
   Your browser does not support the video tag.
   </video>
+  <p class="caption">Timelapse of observations requested by citizen scientists. Made from {{asteroid.num_observations}} images, last updated {{asteroid.last_update}}</p>
 {% endif %}
+</div>
+<div class="col-md-4">
+    {% if user_request %}
+    <h3>Your Observations</h3>
+    {% if user_request.frames%}
+      {% for frame in frames%}
+      <img src="{{frame.url}}" />
+      {% endfor%}
+    {% else %}
+    <p>No images yet.</p>
+    {% endif %}
+    <p>
+      <table class="table">
+        <tr>
+          <td>Status</td><td>{{user_request.status.get_status_display}}</td>
+        </tr>
+        <tr>
+          <td>Last Update</td><td>{{user_request.status.last_update}}</td>
+        </tr>
+      </table>
+    </p>
+    {% else %}
     <h3>Join this campaign!</h3>
     <form action="{% url 'asteroid_schedule' asteroid.id %}" method="post">
       {% csrf_token%}
@@ -37,8 +46,17 @@
       </span>
     </div>
     </form>
-    <h3>About</h3>
-    <p class="lead">{{asteroid.information|safe}}</p>
+    <p>If you've already joined this campaign, enter your email address and we'll look up the status of your images.</p>
+    {% endif %}
+</div>
+<div class="row">
+  <div class="col-md-8">
+    <h3>Information</h3>
+    <p>{{asteroid.information|safe}}</p>
+  </div>
+  <div class="col-md-4">
+
   </div>
 </div>
+
 {% endblock %}
