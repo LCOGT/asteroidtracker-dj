@@ -1,6 +1,3 @@
-from django.contrib.sessions.backends.db import SessionStore
-import httplib
-import urllib
 import requests
 import logging
 import json
@@ -40,48 +37,17 @@ def check_request_api(tracking_num):
     ).json()
 
     token = response.get('token')
-
     # Store the Authorization header
     headers = {'Authorization': 'Token ' + token}
-
     # Make an authenticated request with our headers
     url = 'https://lcogt.net/observe/api/user_requests/%s/' % tracking_num
-    response = requests.get(url, headers=headers).json()
-
-    #frames_url = 'https://lcogt.net/observe/api/requests/%s/frames/'
-    #frames = requests.get(url, headers=headers).json()
-    frames = None
-    return response, frames
-
-
-def process_observation_request(user_request):
-    '''
-    Send the observation parameters and the authentication cookie to the Scheduler API
-    '''
-    json_user_request = json.dumps(user_request)
-    params = {
-            'proposal'   : 'LCOEPO2014B-010',
-            'user_id'       : settings.PROPOSAL_USER,
-            'password'      : settings.PROPOSAL_PASSWD,
-           'request_data' : json_user_request}
-    enc_params = urllib.urlencode(params)
-    url = 'https://lcogt.net/observe/service/request/submit'
-    conn = httplib.HTTPSConnection("lcogt.net")
-    headers = {'Content-type': 'application/x-www-form-urlencoded'}
-    conn.request("POST", "/observe/service/request/submit", enc_params, headers)
-    conn_response = conn.getresponse()
-
-    # The status can tell you if sending the request failed or not. 200 or 203 would mean success, 400 or anything else fail
-    status_code = conn_response.status
-
-    if status_code == 200:
-        response = conn_response.read()
-        response = json.loads(response)
-        logger.debug(response)
-        return True, False
-    else:
-        logger.error(conn_response)
-        return False, conn_response
+    response = requests.get(url, headers=headers)
+    frame_ids = []
+    if response.status_code == 200:
+        # Only proceed if there is a successful response
+        response = response.json()
+        frames = find_frames(response['requests'], headers)
+    return response, frame_ids
 
 
 def format_request(asteroid):

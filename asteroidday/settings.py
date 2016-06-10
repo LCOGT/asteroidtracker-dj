@@ -1,5 +1,7 @@
 import os, sys
 
+VERSION = '0.1'
+
 TEST = 'test' in sys.argv
 COMPRESS_ENABLED = True
 
