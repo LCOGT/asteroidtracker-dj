@@ -30,25 +30,13 @@ def submit_scheduler_api(params):
         logger.error(r.content)
         return False, r.content
 
-def check_request_api(tracking_num):
-    response = requests.post(
-      'https://lcogt.net/observe/api/api-token-auth/',
-      data = {'username':settings.PROPOSAL_USER, 'password':settings.PROPOSAL_PASSWD}
-    ).json()
-
+def get_headers(url):
+    auth_data = {'username':settings.PROPOSAL_USER, 'password':settings.PROPOSAL_PASSWD}
+    response = requests.post(url, data = auth_data).json()
     token = response.get('token')
     # Store the Authorization header
     headers = {'Authorization': 'Token ' + token}
-    # Make an authenticated request with our headers
-    url = 'https://lcogt.net/observe/api/user_requests/%s/' % tracking_num
-    response = requests.get(url, headers=headers)
-    frame_ids = []
-    if response.status_code == 200:
-        # Only proceed if there is a successful response
-        response = response.json()
-        frames = find_frames(response['requests'], headers)
-    return response, frame_ids
-
+    return headers
 
 def format_request(asteroid):
 

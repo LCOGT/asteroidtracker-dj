@@ -67,3 +67,6 @@ target/
 
 # Local setup
 local_settings.py
+*.mp4
+*.png
+*.jpg

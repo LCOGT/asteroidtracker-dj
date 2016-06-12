@@ -82,7 +82,10 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
                 'django.contrib.messages.context_processors.messages',
+
             ],
         },
     },
@@ -137,7 +140,10 @@ USE_TZ = False
 
 STATIC_ROOT = '/var/www/html/static/'
 STATIC_URL = PREFIX + '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR,'core'),]
+STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe'),]
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = '/var/www/apps/asteroidday/media/'
 
 PROPOSAL_USER = os.environ.get('ASTEROIDDAY_API_USER', '')
 PROPOSAL_PASSWD = os.environ.get('ASTEROIDDAY_API_PASSWD', '')

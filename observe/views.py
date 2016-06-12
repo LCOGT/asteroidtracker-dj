@@ -7,8 +7,8 @@ from django import forms
 from django.http import Http404
 from datetime import datetime
 
-from observe.schedule import format_request, submit_scheduler_api, check_request_api
-
+from observe.schedule import format_request, submit_scheduler_api
+from observe.images import check_request_api, download_frames
 from observe.models import Asteroid, Request
 import logging
 
@@ -52,10 +52,15 @@ class AsteroidSchedule(FormView):
 
 def update_status(req):
     status, frames = check_request_api(req.track_num)
-    logger.debug(status)
-    req.status = state_options[status['state']]
-    req.update = datetime.utcnow()
-    req.save()
+    logger.debug("Frames available for %s = %s" % (req.track_num, len(frames)))
+    if len(frames) == req.asteroid.exposure_count:
+        logger.debug("Downloading %s frames" % len(frames))
+        confirm = download_frames(req.asteroid.text_name(), frames, download_dir=settings.MEDIA_ROOT)
+        req.status = state_options[status['state']]
+        req.update = datetime.utcnow()
+        req.save()
+    else:
+        frames = False
     return frames
 
 
