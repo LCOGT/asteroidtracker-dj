@@ -122,7 +122,7 @@ USE_TZ = False
 
 
 STATIC_ROOT = '/var/www/html/static/'
-STATIC_URL = PREFIX + '/static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe'),]
 
 MEDIA_URL = "/media/"
