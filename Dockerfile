@@ -29,10 +29,10 @@ RUN yum -y install epel-release \
 	&& yum -y update
 
 # Copy the LCOGT Mezzanine webapp files
-COPY app/requirements.txt /var/www/apps/asteroidday/requirements.txt
+COPY app/requirements.pip /var/www/apps/asteroidday/requirements.pip
 
 RUN pip install pip==1.3 && pip install uwsgi==2.0.8 \
-		&& pip install -r /var/www/apps/asteroidday/requirements.txt
+		&& pip install -r /var/www/apps/asteroidday/requirements.pip
 
 # Setup the Python Django environment
 ENV PYTHONPATH /var/www/apps

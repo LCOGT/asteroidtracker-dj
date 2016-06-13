@@ -1,35 +1,30 @@
 #!/bin/bash
 
-# Substitute the prefix into the nginx configuration
-echo "Running with PREFIX=${PREFIX}"
-sed -i -e "s:@PREFIX@:${PREFIX}:g" /etc/nginx/nginx.conf
-
 # Generate cron wrapper to set correct environment variables
-cat > /var/www/apps/neoexchange/cronwrapper << EOF
+cat > /var/www/apps/asteroidday/cronwrapper << EOF
 export PYTHONPATH="${PYTHONPATH}"
 export DJANGO_SETTINGS_MODULE="${DJANGO_SETTINGS_MODULE}"
-export PREFIX="${PREFIX}"
 
-export NEOX_DB_NAME="${NEOX_DB_NAME}"
-export NEOX_DB_HOST="${NEOX_DB_HOST}"
-export NEOX_DB_USER="${NEOX_DB_USER}"
-export NEOX_DB_PASSWD="${NEOX_DB_PASSWD}"
-export NEOX_ODIN_USER="${NEOX_ODIN_USER}"
-export NEOX_ODIN_PASSWD="${NEOX_ODIN_PASSWD}"
-export NEOX_OPBEAT_TOKEN="${NEOX_OPBEAT_TOKEN}"
-export NEOX_OPBEAT_ORGID="${NEOX_OPBEAT_ORGID}"
-export NEOX_OPBEAT_APPID="${NEOX_OPBEAT_APPID}"
-export NEOX_EMAIL_USERNAME="${NEOX_EMAIL_USERNAME}"
-export NEOX_EMAIL_PASSWORD="${NEOX_EMAIL_PASSWORD}"
+export ASTEROIDDAY_DB_NAME="${ASTEROIDDAY_DB_NAME}"
+export ASTEROIDDAY_DB_HOST="${ASTEROIDDAY_DB_HOST}"
+export ASTEROIDDAY_DB_USER="${ASTEROIDDAY_DB_USER}"
+export ASTEROIDDAY_DB_PASSWD="${ASTEROIDDAY_DB_PASSWD}"
+export ASTEROIDDAY_API_USER="${ASTEROIDDAY_API_USER}"
+export ASTEROIDDAY_API_PASSWD="${ASTEROIDDAY_API_PASSWD}"
+export ASTEROIDDAY_OPBEAT_TOKEN="${ASTEROIDDAY_OPBEAT_TOKEN}"
+export ASTEROIDDAY_OPBEAT_ORGID="${ASTEROIDDAY_OPBEAT_ORGID}"
+export ASTEROIDDAY_OPBEAT_APPID="${ASTEROIDDAY_OPBEAT_APPID}"
+export ASTEROIDDAY_EMAIL_USERNAME="${ASTEROIDDAY_EMAIL_USERNAME}"
+export ASTEROIDDAY_EMAIL_PASSWORD="${ASTEROIDDAY_EMAIL_PASSWORD}"
 
 EOF
 
 # Make cron wrapper executable
-chmod +x /var/www/apps/neoexchange/cronwrapper
+chmod +x /var/www/apps/asteroidday/cronwrapper
 
-# Setup the LCOGT NEOx webapp
-python /var/www/apps/neoexchange/manage.py migrate --noinput
-python /var/www/apps/neoexchange/manage.py collectstatic --noinput
+# Setup the LCOGT Asteroid day webapp
+python /var/www/apps/asteroidday/manage.py migrate --noinput
+python /var/www/apps/asteroidday/manage.py collectstatic --noinput
 
 # Run under supervisord
 exec /usr/bin/supervisord -n -c /etc/supervisord.conf
