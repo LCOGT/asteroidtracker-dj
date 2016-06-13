@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic import FormView
@@ -44,10 +45,12 @@ class AsteroidSchedule(FormView):
 
     def form_valid(self, form):
         resp = process_form(self.body, form.cleaned_data)
-        if resp:
+        if resp['status']:
             self.success_url = reverse_lazy('asteroid_detail', kwargs={'pk':self.body.id})
+            messages.info(self.request,"Checking status of your %s observations" % self.body.name)
             return render(self.request, 'observe/asteroid.html', {'asteroid':self.body, 'user_request':resp})
         else:
+            messages.add_message(self.request, resp['code'] , resp['msg'])
             return super(AsteroidSchedule, self).form_valid(form)
 
 def update_status(req):
@@ -67,7 +70,6 @@ def update_status(req):
 def send_request(asteroid, form):
     obs_params = format_request(asteroid)
     resp_status, resp_msg = submit_scheduler_api(obs_params)
-    #resp_status, resp_msg = (True, '999')
     if resp_status:
         req_params = {
             'track_num' : resp_msg,
@@ -77,10 +79,14 @@ def send_request(asteroid, form):
         }
         r = Request(**req_params)
         r.save()
+        msg = "Observations submitted successfully"
+        code = messages.SUCCESS
         logger.debug('Saved request %s' % r)
     else:
-        logger.error('Request not scheduled: %s' % resp_msg)
-    return None
+        msg = 'Request not scheduled: %s' % resp_msg
+        logger.error(resp_msg)
+        code = messages.ERROR
+    return {'status':None, 'msg': msg,'code':code}
 
 def process_form(asteroid, form):
     try:

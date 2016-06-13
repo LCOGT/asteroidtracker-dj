@@ -8,9 +8,9 @@
 <div class="row">
   <div class="col-md-8">
   {% if asteroid.active %}
-  <video  controls>
-     <source src="{{asteroid.timelapse_url}}" type="video/mp4">
-  Your browser does not support the video tag.
+  <video width="100%" controls>
+     <source src="{{asteroid.timelapse_url}}" type="video/mp4" >
+  Your browser does not support the video tag. Try <a href="asteroid.timelapse_url">downloading</a> instead.
   </video>
   <p class="caption">Timelapse of observations requested by citizen scientists. Made from {{asteroid.num_observations}} images, last updated {{asteroid.last_update}}</p>
 {% endif %}
