@@ -1,0 +1,9 @@
+app/observed/media/*
+.git
+.svn
+*.pyc
+*.pyo
+*.db
+*.log
+*.jpg
+*.mp4

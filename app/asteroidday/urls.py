@@ -1,0 +1,28 @@
+"""asteroidday URL Configuration
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/1.9/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.conf.urls import url, include
+    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+"""
+from django.conf.urls import url
+from django.contrib import admin
+
+from observe.views import AsteroidView, AsteroidSchedule, home
+from observe.models import Asteroid
+
+
+urlpatterns = [
+    url(r'^$', home , name='home'),
+    url(r'asteroid/(?P<pk>[0-9]+)/$', AsteroidView.as_view(), name='asteroid_detail'),
+    url(r'asteroid/(?P<pk>[0-9]+)/submit/$', AsteroidSchedule.as_view(), name='asteroid_schedule'),
+    url(r'^admin/', admin.site.urls),
+]
