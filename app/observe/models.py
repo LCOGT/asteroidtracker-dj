@@ -82,13 +82,14 @@ class Asteroid(models.Model):
         return self.name
 
 
-class Request(models.Model):
+class Observation(models.Model):
     track_num           = models.CharField(max_length=10)
     status              = models.CharField(max_length=1, choices=STATUS_CHOICES)
     last_update         = models.DateTimeField(default=datetime.utcnow())
     email               = models.CharField(max_length=150, blank=True, null=True)
     twitter             = models.CharField(max_length=15, blank=True, null=True)
     asteroid            = models.ForeignKey(Asteroid)
+    request_ids         = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
         return "%s for %s is %s" % (self.track_num, self.email, self.status)

@@ -6,16 +6,15 @@ import subprocess
 import glob
 from django.conf import settings
 
-from observe.models import Asteroid, Request
+from observe.models import Asteroid
 from observe.schedule import get_headers
 
 logger = logging.getLogger('asteroid')
 
-def check_request_api(tracking_num):
+def check_request_api(tracking_num, headers=None):
     '''
     tracking_num: Finds all frames corresponding to this tracking number for UserRequest
     '''
-    headers = get_headers(url = 'https://lcogt.net/observe/api/api-token-auth/')
     # Make an authenticated request with our headers
     url = 'https://lcogt.net/observe/api/user_requests/%s/' % tracking_num
     response = requests.get(url, headers=headers)
@@ -24,12 +23,11 @@ def check_request_api(tracking_num):
         # Only proceed if there is a successful response
         response = response.json()
         logger.debug("Checking status of %s requests" % len(response['requests']))
-        frames = find_frames(response['requests'], headers)
-    return response, frames
+    return response
 
 def find_frames(user_reqs, headers=None):
     '''
-    user_reqs: Full User Request dict, containing individual observation requests
+    user_reqs: Full User Request dict, or list of dictionaries, containing individual observation requests
     header: provide auth token from the request API so we don't need to get it twice
     '''
     frames = []

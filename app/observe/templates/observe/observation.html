@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+<div class="row">
+  <h1>{{observation.asteroid.name}}</h1>
+</div>
+<div class="row">
+  <div class="col-md-8">
+  {% if observation.asteroid.active %}
+  <video width="100%" controls>
+     <source src="{{observation.asteroid.timelapse_url}}" type="video/mp4" >
+  Your browser does not support the video tag. Try <a href="observation.asteroid.timelapse_url">downloading</a> instead.
+  </video>
+  <p class="caption">Timelapse of observations requested by citizen scientists. Made from {{observation.asteroid.num_observations}} images, last updated {{observation.asteroid.last_update}}</p>
+{% endif %}
+</div>
+<div class="col-md-4">
+    <h3>Your Observations</h3>
+      {% for frame in observation.frames%}
+      <img src="{{frame.url}}" />
+    {% empty %}
+    <p>No images yet.</p>
+    {% endfor%}
+
+    <p>
+      <table class="table">
+        <tr>
+          <td>Status</td><td>{{observation.get_status_display}}</td>
+        </tr>
+        <tr>
+          <td>Last Update</td><td>{{observation.last_update}}</td>
+        </tr>
+      </table>
+    </p>
+
+</div>
+<div class="row">
+  <div class="col-md-8">
+    <h3>Information</h3>
+    <p>{{observation.asteroid.information|safe}}</p>
+  </div>
+  <div class="col-md-4">
+
+  </div>
+</div>
+
+{% endblock %}
