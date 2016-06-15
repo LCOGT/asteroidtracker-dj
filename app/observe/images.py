@@ -82,7 +82,7 @@ def make_timelapse(asteroid):
         outfile = '%s%s.mp4' % (settings.MEDIA_ROOT, asteroid.text_name())
         video_options = ['-s', '696x520', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', outfile, '-y']
         subprocess.call(['ffmpeg', '-framerate', '10', '-pattern_type', 'glob', '-i', '%s' % path] +  video_options)
-    return
+    return len(files)
 
 def email_user():
     return

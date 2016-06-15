@@ -1,4 +1,4 @@
-app/observed/media/*
+app/observe/media/*
 .git
 .svn
 *.pyc

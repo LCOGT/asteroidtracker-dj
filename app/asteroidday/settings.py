@@ -172,7 +172,7 @@ LOGGING = {
             'propagate': False,
         },
         'asteroid': {
-            'handlers':['console'],
+            'handlers':['console','file'],
             'level' : 'DEBUG'
         }
     }

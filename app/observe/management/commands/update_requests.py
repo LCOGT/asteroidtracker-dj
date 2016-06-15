@@ -3,15 +3,17 @@ from django.db.models import Q
 from datetime import datetime, timedelta
 from observe.views import update_status
 from observe.images import check_request_api, make_timelapse
-from observe.models import Request, Asteroid
+from observe.models import Observation, Asteroid
 
 class Command(BaseCommand):
     help = 'Update pending blocks if observation requests have been made'
 
     def handle(self, *args, **options):
-        requests = Request.objects.filter(~Q(status='C')|~Q(status='F'))
-        self.stdout.write("==== %s Pending Requests %s ====" % (requests.count(), datetime.now().strftime('%Y-%m-%d %H:%M')))
+        requests = Observation.objects.filter(~Q(status='C')|~Q(status='F'))
+        self.stdout.write("==== %s Pending Observations %s ====" % (requests.count(), datetime.now().strftime('%Y-%m-%d %H:%M')))
         for req in requests:
             frames = update_status(req)
         for ast in Asteroid.objects.filter(active=True):
-            make_timelapse(ast)
+            num_images = make_timelapse(ast)
+            ast.num_observations = num_images
+            ast.save()
