@@ -10,7 +10,7 @@ from datetime import datetime
 import json
 
 from observe.schedule import format_request, submit_scheduler_api, get_headers
-from observe.images import check_request_api, download_frames
+from observe.images import check_request_api, download_frames, find_frames
 from observe.models import Asteroid, Observation
 import logging
 
@@ -77,8 +77,8 @@ class AsteroidSchedule(FormView):
 def update_status(req):
     headers = get_headers(url = 'https://lcogt.net/observe/api/api-token-auth/')
     status = check_request_api(req.track_num, headers)
-    frames = find_frames(status, headers)
-    request_ids = [req['request_number'] for req in status]
+    request_ids = [r['request_number'] for r in status['requests']]
+    frames = find_frames(request_ids, headers)
     req.request_ids = json.dumps(request_ids)
     logger.debug("Frames available for %s = %s" % (req.track_num, len(frames)))
     if len(frames) == req.asteroid.exposure_count:

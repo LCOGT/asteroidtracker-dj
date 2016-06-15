@@ -32,16 +32,19 @@ def find_frames(user_reqs, headers=None):
     '''
     frames = []
     frame_urls = []
+    logger.debug("User request: %s" % user_reqs)
     for req in user_reqs:
-        url = 'https://lcogt.net/observe/api/requests/%s/frames/' % req['request_number']
+        url = 'https://lcogt.net/observe/api/requests/%s/frames/' % req
         frames += requests.get(url, headers=headers).json()
     # Need a new header to access Archive API
+    logger.debug(frames)
     archive_headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
-    data_products = {'00.fits':'','91.fits':'','11.fits':'', '90.fits':'','10.fits':''}
+    data_products = {'e00':'','e91':'','e11':'', 'e90':'','e10':''}
     for ext, val in data_products.items():
         data_products[ext] = [frame['id'] for frame in frames if ext in frame['filename']]
     # what is data product with the most frames available
     dp = max(data_products, key=data_products.get)
+    logger.debug('Frames %s' % data_products)
     logger.debug('Most frames available at %s reduction level' % dp)
     for frame_id in data_products[dp]:
         thumbnail_url = "https://thumbnails.lcogt.net/%s/?width=1000&height=1000" % frame_id
