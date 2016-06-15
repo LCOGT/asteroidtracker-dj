@@ -13,11 +13,12 @@ ADMINS = (
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 PRODUCTION = True if CURRENT_PATH.startswith('/var/www') else False
-DEBUG = True
+DEBUG = False
 
 HOME = os.environ.get('HOME','/tmp')
 
 MANAGERS = ADMINS
+SITE_ID = 1
 
 DATABASES = {
     'default': {
@@ -51,6 +52,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.flatpages',
     'observe'
 ]
 
@@ -150,7 +153,7 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.FileHandler',
             'filename': 'asteroid.log',
             'formatter': 'verbose',
@@ -163,6 +166,11 @@ LOGGING = {
         }
     },
     'loggers': {
+            'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
         'asteroid': {
             'handlers':['console'],
             'level' : 'DEBUG'

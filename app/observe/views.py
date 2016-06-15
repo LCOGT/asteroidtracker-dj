@@ -66,7 +66,7 @@ class AsteroidSchedule(FormView):
         try:
             req = Observation.objects.get(asteroid=self.body, email=form.cleaned_data['user_name'])
         except Observation.DoesNotExist:
-            resp = send_request(asteroid, form)
+            resp = send_request(self.body, form)
             messages.add_message(self.request, resp['code'] , resp['msg'])
             return super(AsteroidSchedule, self).form_valid(form)
 

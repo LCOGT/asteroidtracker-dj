@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.flatpages import views
 
 from observe.views import AsteroidView, AsteroidSchedule, ObservationView, home
 from observe.models import Asteroid
@@ -22,6 +23,7 @@ from observe.models import Asteroid
 
 urlpatterns = [
     url(r'^$', home , name='home'),
+    url(r'^about/$', views.flatpage, {'url': '/about/'}, name='about'),
     url(r'asteroid/(?P<pk>[0-9]+)/$', AsteroidView.as_view(), name='asteroid_detail'),
     url(r'asteroid/(?P<pk>[0-9]+)/submit/$', AsteroidSchedule.as_view(), name='asteroid_schedule'),
     url(r'observation/(?P<pk>[0-9]+)/$', ObservationView.as_view(), name='request_detail'),

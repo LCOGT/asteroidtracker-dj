@@ -31,7 +31,7 @@
 
   <body>
 
-    <nav class="navbar navbar-inverse">
+    <nav class="navbar topbar">
           <div class="container">
             <div class="navbar-header">
               <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
@@ -44,12 +44,12 @@
             </div>
             <div class="navbar-collapse collapse" id="navbar">
               <ul class="nav navbar-nav">
-                <li><a href="http://lcogt.net/about/">About</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'about'%}">About</a></li>
               </ul>
               <div class="nav navbar-nav navbar-right">
                 <ul class="nav navbar-nav">
-                  <li><a href="http://lcogt.net/">powered by LCOGT.net</a></li>
+                  <li><a href="http://lcogt.net/">a Las Cumbres Observatory project</a></li>
                 </ul>
               </div>
             </div><!--/.nav-collapse -->

@@ -45,6 +45,7 @@ RUN sed -i -e 's/\(session\s*required\s*pam_loginuid.so\)/#\1/' /etc/pam.d/crond
 COPY config/uwsgi.ini /etc/uwsgi.ini
 COPY config/nginx/* /etc/nginx/
 COPY config/processes.ini /etc/supervisord.d/processes.ini
+COPY config/crontab.root /var/spool/cron/root
 
 # Copy configuration files
 COPY config/init /init
