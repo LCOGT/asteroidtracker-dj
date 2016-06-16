@@ -5,5 +5,4 @@ app/observe/media/*
 *.pyo
 *.db
 *.log
-*.jpg
 *.mp4
