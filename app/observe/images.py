@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 import glob
+from datetime import datetime
 from django.conf import settings
 
 from observe.models import Asteroid
@@ -24,6 +25,39 @@ def check_request_api(tracking_num, headers=None):
         response = response.json()
         logger.debug("Checking status of %s requests" % len(response['requests']))
     return response
+
+def set_update_time(date_obs, last_update):
+    date_obs, _, us = date_obs.partition(".")
+    tmp_date = datetime.strptime(date_obs, "%Y-%m-%dT%H:%M:%S")
+    if tmp_date > last_update:
+        last_update = tmp_date
+    return last_update
+
+def find_frames_object(asteroid):
+    '''
+    user_reqs: Full User Request dict, or list of dictionaries, containing individual observation requests
+    header: provide auth token from the request API so we don't need to get it twice
+    '''
+    frames = []
+    frame_urls = []
+    last_update = asteroid.last_update.strftime("%Y-%m-%d %H:%M")
+    archive_headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
+    url = 'http://archive-api.lcogt.net/frames/?PROPID=LCOEPO2014B-010&RLEVEL=0&start={}&OBJECT={}'.format(last_update, asteroid.text_name())
+    response = requests.get(url, headers=archive_headers).json()
+    frames = response['results']
+    if not response:
+        # No frames for this object since last update
+        return None
+    for frame in frames:
+        last_update = set_update_time(frame['DATE_OBS'], last_update)
+        thumbnail_url = "https://thumbnails.lcogt.net/%s/?width=1000&height=1000" % frame['id']
+        try:
+            resp = requests.get(thumbnail_url, headers=archive_headers)
+            frame_urls.append({'id':str(frame_id), 'url':resp.json()['url']})
+        except ValueError:
+            logger.debug("Failed to get thumbnail URL for %s - %s" % (frame_id, resp.status_code))
+    logger.debug("Total frames=%s" % (len(frames)))
+    return frame_urls, last_update
 
 def find_frames(user_reqs, headers=None):
     '''

@@ -35,7 +35,7 @@ def get_headers(url):
     response = requests.post(url, data = auth_data).json()
     token = response.get('token')
     # Store the Authorization header
-    headers = {'Authorization': 'Token ' + token}
+    headers = {'Authorization': 'Token {}'.format(token)}
     return headers
 
 def format_request(asteroid):
@@ -64,7 +64,7 @@ def format_request(asteroid):
 
     # define the target
     target = {
-        'name'              : asteroid.name,
+        'name'              : asteroid.text_name(),
         'type'              : 'NON_SIDEREAL',
         'scheme'            : 'MPC_MINOR_PLANET',
         'orbinc'            : asteroid.orbinc,

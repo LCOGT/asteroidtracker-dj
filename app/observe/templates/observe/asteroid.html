@@ -37,6 +37,7 @@
     </p>
     {% else %}
     <h3>Join this campaign!</h3>
+    <p>Enter your email address and Las Cumbres Observatory will schedule observations of {{asteroid.name}} just for you. Everyone's image are automatically combined into the timelapse.</p>
     <form action="{% url 'asteroid_schedule' asteroid.id %}" method="post">
       {% csrf_token%}
       <div class="input-group">

@@ -83,7 +83,6 @@ def update_status(req):
     logger.debug("Frames available for %s = %s" % (req.track_num, len(frames)))
     if len(frames) == req.asteroid.exposure_count:
         logger.debug("Downloading %s frames" % len(frames))
-        confirm = download_frames(req.asteroid.text_name(), frames, download_dir=settings.MEDIA_ROOT)
         req.status = state_options[status['state']]
         req.update = datetime.utcnow()
     else:
@@ -99,7 +98,7 @@ def send_request(asteroid, form):
         req_params = {
             'track_num' : resp_msg,
             'status'    : 'P',
-            'email'     : form['user_name'],
+            'email'     : form.cleaned_data['user_name'],
             'asteroid'  : asteroid,
         }
         r = Observation(**req_params)
