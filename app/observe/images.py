@@ -31,7 +31,7 @@ def set_update_time(date_obs, last_update):
     tmp_date = datetime.strptime(date_obs, "%Y-%m-%dT%H:%M:%S")
     if tmp_date > last_update:
         last_update = tmp_date
-    return last_update
+    return last_update, tmp_date
 
 def find_frames_object(asteroid):
     '''
@@ -42,18 +42,18 @@ def find_frames_object(asteroid):
     frame_urls = []
     last_update = asteroid.last_update.strftime("%Y-%m-%d %H:%M")
     archive_headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
-    url = 'http://archive-api.lcogt.net/frames/?PROPID=LCOEPO2014B-010&RLEVEL=0&start={}&OBJECT={}'.format(last_update, asteroid.text_name())
+    url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&start={}&OBJECT={}'.format(last_update, asteroid.text_name())
     response = requests.get(url, headers=archive_headers).json()
     frames = response['results']
     if not response:
         # No frames for this object since last update
         return None
     for frame in frames:
-        last_update = set_update_time(frame['DATE_OBS'], last_update)
-        thumbnail_url = "https://thumbnails.lcogt.net/%s/?width=1000&height=1000" % frame['id']
+        last_update, date_obs = set_update_time(frame['DATE_OBS'], asteroid.last_update)
+        thumbnail_url = "https://thumbnails.lcogt.net/{}/?width=1000&height=1000&label={}".format(frame['id'], date_obs.strftime("%d %b %Y %H:%M"))
         try:
             resp = requests.get(thumbnail_url, headers=archive_headers)
-            frame_urls.append({'id':str(frame_id), 'url':resp.json()['url']})
+            frame_urls.append({'id':str(frame['id']), 'url':resp.json()['url'],'date_obs':date_obs})
         except ValueError:
             logger.debug("Failed to get thumbnail URL for %s - %s" % (frame_id, resp.status_code))
     logger.debug("Total frames=%s" % (len(frames)))
@@ -71,7 +71,6 @@ def find_frames(user_reqs, headers=None):
         url = 'https://lcogt.net/observe/api/requests/%s/frames/' % req
         frames += requests.get(url, headers=headers).json()
     # Need a new header to access Archive API
-    logger.debug(frames)
     archive_headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
     data_products = {'e00':'','e91':'','e11':'', 'e90':'','e10':''}
     for ext, val in data_products.items():
@@ -92,7 +91,8 @@ def find_frames(user_reqs, headers=None):
 
 def download_frames(asteroid_name, frames, download_dir):
     for frame in frames:
-        file_name = '%s_%s.jpg' % (asteroid_name, frame['id'])
+        frame_date = frame['date_obs'].strftime("%Y%m%d%H%M%S")
+        file_name = '%s_%s.jpg' % (asteroid_name, frame_date)
         with open(os.path.join(download_dir, file_name), "wb") as f:
             logger.debug("Downloading %s" % file_name)
             response = requests.get(frame['url'], stream=True)
@@ -118,7 +118,7 @@ def make_timelapse(asteroid):
     if len(files) > 0:
         outfile = '%s%s.mp4' % (settings.MEDIA_ROOT, asteroid.text_name())
         video_options = ['-s', '696x520', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', outfile, '-y']
-        subprocess.call(['ffmpeg', '-framerate', '10', '-pattern_type', 'glob', '-i', '%s' % path] +  video_options)
+        subprocess.call([settings.FFMPEG, '-framerate', '10', '-pattern_type', 'glob', '-i', "'%s'" % path] +  video_options)
     return len(files)
 
 def email_user():

@@ -6,52 +6,32 @@
   <h1>{{asteroid.name}}</h1>
 </div>
 <div class="row">
+    <h3>Track this Asteroid!</h3>
+    <p>Enter your email address and Las Cumbres Observatory will schedule observations of {{asteroid.name}} just for you!</p>
+    <form action="{% url 'asteroid_schedule' asteroid.id %}" method="post">
+      {% csrf_token%}
+      <div class="input-group">
+      <input type="text" name="user_name" class="form-control" placeholder="Email address..." />
+      <span class="input-group-btn">
+        <input type=submit value="Track!" class="btn btn-default" />
+      </span>
+    </div>
+    </form>
+    <p>Everyone's image are automatically combined into the timelapse.</p>
+    <p>If you've already joined this campaign, enter your email address and we'll look up the status of your images.</p>
+</div>
+<div class="row">
   <div class="col-md-8">
   {% if asteroid.active %}
   <video width="100%" controls>
      <source src="{{asteroid.timelapse_url}}" type="video/mp4" >
   Your browser does not support the video tag. Try <a href="asteroid.timelapse_url">downloading</a> instead.
   </video>
-  <p class="caption">Timelapse of observations requested by citizen scientists. Made from {{asteroid.num_observations}} images, last updated {{asteroid.last_update}}</p>
+  <p class="caption">Timelapse made from {{asteroid.num_observations}} images, last updated {{asteroid.last_update}}</p>
 {% endif %}
 </div>
-<div class="col-md-4">
-    {% if user_request %}
-    <h3>Your Observations</h3>
-    {% if user_request.frames%}
-      {% for frame in frames%}
-      <img src="{{frame.url}}" />
-      {% endfor%}
-    {% else %}
-    <p>No images yet.</p>
-    {% endif %}
-    <p>
-      <table class="table">
-        <tr>
-          <td>Status</td><td>{{user_request.status.get_status_display}}</td>
-        </tr>
-        <tr>
-          <td>Last Update</td><td>{{user_request.status.last_update}}</td>
-        </tr>
-      </table>
-    </p>
-    {% else %}
-    <h3>Join this campaign!</h3>
-    <p>Enter your email address and Las Cumbres Observatory will schedule observations of {{asteroid.name}} just for you. Everyone's image are automatically combined into the timelapse.</p>
-    <form action="{% url 'asteroid_schedule' asteroid.id %}" method="post">
-      {% csrf_token%}
-      <div class="input-group">
-      <input type="text" name="user_name" class="form-control" placeholder="Email address..." />
-      <span class="input-group-btn">
-        <input type=submit value="Join!" class="btn btn-default" />
-      </span>
-    </div>
-    </form>
-    <p>If you've already joined this campaign, enter your email address and we'll look up the status of your images.</p>
-    {% endif %}
-</div>
 <div class="row">
-  <div class="col-md-8">
+  <div class="col-md-4">
     <h3>Information</h3>
     <p>{{asteroid.information|safe}}</p>
   </div>

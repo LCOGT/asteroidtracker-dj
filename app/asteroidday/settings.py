@@ -129,10 +129,12 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe'),]
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = '/var/www/apps/asteroidday/media/'
+MEDIA_ROOT = '/var/www/apps/asteroidday/observe/media/'
 
 PROPOSAL_USER = os.environ.get('ASTEROIDDAY_API_USER', '')
 PROPOSAL_PASSWD = os.environ.get('ASTEROIDDAY_API_PASSWD', '')
+
+FFMPEG = '/root/bin/ffmpeg'
 
 LOGGING = {
     'version': 1,
