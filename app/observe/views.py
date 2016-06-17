@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic import FormView
+from django.core.mail import send_mass_mail
 from django import forms
 from django.http import Http404
 from datetime import datetime

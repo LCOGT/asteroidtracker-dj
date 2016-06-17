@@ -11,13 +11,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         requests = Observation.objects.filter(~Q(status='C')|~Q(status='F'))
-        self.stdout.write("==== %s Pending Observations %s ====" % (requests.count(), datetime.now().strftime('%Y-%m-%d %H:%M')))
+        self.stdout.write("==== %s Pending requests %s ====" % (requests.count(), datetime.now().strftime('%Y-%m-%d %H:%M')))
         for req in requests:
             frames = update_status(req)
-        for ast in Asteroid.objects.filter(active=True):
-            frames, last_update = find_frames_object(ast)
-            confirm = download_frames(ast.text_name(), frames, download_dir=settings.MEDIA_ROOT)
-            num_images = make_timelapse(ast)
-            ast.num_observations += num_images
-            ast.last_update = last_update
-            ast.save()

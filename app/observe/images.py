@@ -6,6 +6,7 @@ import subprocess
 import glob
 from datetime import datetime
 from django.conf import settings
+from django.template import loader, Context
 
 from observe.models import Asteroid
 from observe.schedule import get_headers
@@ -68,19 +69,14 @@ def find_frames(user_reqs, headers=None):
     frame_urls = []
     logger.debug("User request: %s" % user_reqs)
     for req in user_reqs:
-        url = 'https://lcogt.net/observe/api/requests/%s/frames/' % req
+        url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&REQNUM={}'.format(req)'
         frames += requests.get(url, headers=headers).json()
-    # Need a new header to access Archive API
-    archive_headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
-    data_products = {'e00':'','e91':'','e11':'', 'e90':'','e10':''}
-    for ext, val in data_products.items():
-        data_products[ext] = [frame['id'] for frame in frames if ext in frame['filename']]
-    # what is data product with the most frames available
-    dp = max(data_products, key=data_products.get)
-    logger.debug('Frames %s' % data_products)
-    logger.debug('Most frames available at %s reduction level' % dp)
-    for frame_id in data_products[dp]:
-        thumbnail_url = "https://thumbnails.lcogt.net/%s/?width=1000&height=1000" % frame_id
+    logger.debug('Frames %s' % len(frames))
+    return frames
+
+def get_thumbnails(frames):
+    for frame_id in frames:
+        thumbnail_url = "https://thumbnails.lcogt.net/%s/?width=1000&height=1000" % frame_id['id']
         try:
             resp = requests.get(thumbnail_url, headers=archive_headers)
             frame_urls.append({'id':str(frame_id), 'url':resp.json()['url']})
@@ -117,9 +113,19 @@ def make_timelapse(asteroid):
     files = glob.glob(path)
     if len(files) > 0:
         outfile = '%s%s.mp4' % (settings.MEDIA_ROOT, asteroid.text_name())
-        video_options = ['-s', '696x520', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', outfile, '-y']
-        subprocess.call([settings.FFMPEG, '-framerate', '10', '-pattern_type', 'glob', '-i', "'%s'" % path] +  video_options)
+        video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -s 696x520 -vcodec libx264 -pix_fmt yuv420p {} -y".format(path, outfile)
+        subprocess.call(video_options, shell=True)
     return len(files)
 
-def email_user():
+def email_user(observation_list):
+    email_list = []
+    for observation in observation_list:
+        data = {'observation':observation }
+        c = Context(data)
+        t = loader.get_template('observe/notify_email.txt')
+        text_body = t.render(c)
+
+        email_params = ('Asteroid Day: Update on your asteroid', text_body, 'portal@lcogt.net', [user.email])
+        email_list.append(email_params)
+    send_mass_mail(tuple(email_list))
     return

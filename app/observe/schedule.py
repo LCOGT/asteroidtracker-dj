@@ -64,7 +64,7 @@ def format_request(asteroid):
 
     # define the target
     target = {
-        'name'              : asteroid.text_name(),
+        'name'              : asteroid.name,
         'type'              : 'NON_SIDEREAL',
         'scheme'            : 'MPC_MINOR_PLANET',
         'orbinc'            : asteroid.orbinc,
