@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 from datetime import datetime, timedelta
 from observe.images import check_request_api, make_timelapse, find_frames_object, download_frames
-from observe.models importAsteroid
+from observe.models import Asteroid
 
 class Command(BaseCommand):
     help = 'Update pending blocks if observation requests have been made'

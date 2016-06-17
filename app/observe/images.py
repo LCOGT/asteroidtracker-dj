@@ -43,7 +43,7 @@ def find_frames_object(asteroid):
     frame_urls = []
     last_update = asteroid.last_update.strftime("%Y-%m-%d %H:%M")
     archive_headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
-    url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&start={}&OBJECT={}'.format(last_update, asteroid.text_name())
+    url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&start={}&OBJECT={}'.format(last_update, asteroid.name)
     response = requests.get(url, headers=archive_headers).json()
     frames = response['results']
     if not response:
@@ -69,7 +69,7 @@ def find_frames(user_reqs, headers=None):
     frame_urls = []
     logger.debug("User request: %s" % user_reqs)
     for req in user_reqs:
-        url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&REQNUM={}'.format(req)'
+        url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&REQNUM={}'.format(req)
         frames += requests.get(url, headers=headers).json()
     logger.debug('Frames %s' % len(frames))
     return frames
