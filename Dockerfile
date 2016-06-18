@@ -22,37 +22,12 @@ ENV DJANGO_SETTINGS_MODULE asteroidday.settings
 
 # Install package repositories
 RUN yum -y install epel-release \
-	&& yum -y install cronie libjpeg-devel nginx python-pip mysql-devel python-devel \
+	&& yum -y install http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-1.el7.nux.noarch.rpm \
+	&& yum -y install cronie ffmpeg gcc make libjpeg-devel nginx python-pip mysql-devel python-devel \
   && yum -y install supervisor libssl \
 	&& yum -y groupinstall "Development Tools"\
   && yum -y install ImageMagick \
-	&& yum -y install autoconf automake gcc gcc-c++ git libtool make  nasm pkgconfig zlib-devel \
 	&& yum -y update
-
-# Compile FFMPEG and libraries
-RUN mkdir ~/ffmpeg_sources && cd ~/ffmpeg_sources \
-	&& git clone --depth 1 git://git.videolan.org/x264 \
-	&& cd x264 \
-	&& PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static --disable-asm \
-	&& make \
-	&& make install \
-	&& make distclean \
-	&& cd ~/ffmpeg_sources \
-	&& curl -L -O http://downloads.sourceforge.net/project/lame/lame/3.99/lame-3.99.5.tar.gz \
-	&& tar xzvf lame-3.99.5.tar.gz \
-	&& cd lame-3.99.5 \
-	&& ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --disable-shared --enable-nasm \
-	&& make \
-	&& make install \
-	&& make distclean \
-	&& cd ~/ffmpeg_sources \
-	&& git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg \
-	&& cd ffmpeg \
-	&& PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --extra-cflags="-I$HOME/ffmpeg_build/include" --extra-ldflags="-L$HOME/ffmpeg_build/lib" --bindir="$HOME/bin" --pkg-config-flags="--static" --enable-gpl --enable-libmp3lame --enable-libx264\
-	&& make \
-	&& make install \
-	&& make distclean \
-	&& hash -r
 
 # Copy the LCOGT Asteroid Day requirements file
 COPY app/requirements.pip /var/www/apps/asteroidday/requirements.pip

@@ -17,6 +17,11 @@ h1, h2, h3, h4, h5 {
   color: #dd5f32;;
 }
 
+.big-icon {
+  text-align:center;
+    font-size: 75px;
+}
+
 .masthead {color:#dd5f32;}
 
 .topbar {background:#eaede8 none repeat scroll 0 0;}

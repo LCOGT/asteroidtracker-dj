@@ -13,4 +13,5 @@ class Command(BaseCommand):
         requests = Observation.objects.filter(~Q(status='C')|~Q(status='F'))
         self.stdout.write("==== %s Pending requests %s ====" % (requests.count(), datetime.now().strftime('%Y-%m-%d %H:%M')))
         for req in requests:
+            self.stdout.write("Updating {}".format(req))
             frames = update_status(req)

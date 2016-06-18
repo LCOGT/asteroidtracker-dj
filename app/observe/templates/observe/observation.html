@@ -2,25 +2,33 @@
 
 {% block main %}
 
+
 <div class="row">
-  <h1>{{observation.asteroid.name}}</h1>
-</div>
-<div class="row">
-  <div class="col-md-8">
-  {% if observation.asteroid.active %}
+  <div class="col-md-2">
+  </div>
+  <div class="col-md-6">
+    <h1>{{observation.asteroid.name}}</h1>
+
+  {% if asteroid.num_observations > 0 %}
   <video width="100%" controls>
      <source src="{{observation.asteroid.timelapse_url}}" type="video/mp4" >
   Your browser does not support the video tag. Try <a href="observation.asteroid.timelapse_url">downloading</a> instead.
   </video>
   <p class="caption">Timelapse of observations requested by citizen scientists. Made from {{observation.asteroid.num_observations}} images, last updated {{observation.asteroid.last_update}}</p>
+  <p class="caption">Timelapse made from {{asteroid.num_observations}} images, last updated {{asteroid.last_update}}</p>
+  {% else %}
+  <p class="lead">
+    <i class="glyphicon glyphicon-time big-icon"></i><br/>
+    Currently waiting for observations to complete.</p>
 {% endif %}
 </div>
 <div class="col-md-4">
     <h3>Your Observations</h3>
-      {% for frame in observation.frames%}
-      <img src="{{frame.url}}" />
+      {% for frame in frames%}
+      <img src="{{frame.url}}" class="img-responsive"/>
     {% empty %}
-    <p>No images yet.</p>
+    <p><i class="glyphicon glyphicon-time"></i>
+      Sorry, we're still waiting for images for you.</p>
     {% endfor%}
 
     <p>
@@ -35,14 +43,15 @@
     </p>
 
 </div>
+</div>
 <div class="row">
-  <div class="col-md-8">
+  <div class="col-md-2">
+  </div>
+  <div class="col-md-10">
     <h3>Information</h3>
     <p>{{observation.asteroid.information|safe}}</p>
   </div>
-  <div class="col-md-4">
 
-  </div>
 </div>
 
 {% endblock %}

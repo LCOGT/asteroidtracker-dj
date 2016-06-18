@@ -66,19 +66,21 @@ def find_frames(user_reqs, headers=None):
     header: provide auth token from the request API so we don't need to get it twice
     '''
     frames = []
-    frame_urls = []
     logger.debug("User request: %s" % user_reqs)
     for req in user_reqs:
         url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&REQNUM={}'.format(req)
-        frames += requests.get(url, headers=headers).json()
+        resp = requests.get(url, headers=headers).json()
+        if resp['count'] > 0:
+            frames += [f['id'] for f in resp['results']]
     logger.debug('Frames %s' % len(frames))
     return frames
 
-def get_thumbnails(frames):
+def get_thumbnails(frames, headers=None):    
+    frame_urls = []
     for frame_id in frames:
         thumbnail_url = "https://thumbnails.lcogt.net/%s/?width=1000&height=1000" % frame_id['id']
         try:
-            resp = requests.get(thumbnail_url, headers=archive_headers)
+            resp = requests.get(thumbnail_url, headers=headers)
             frame_urls.append({'id':str(frame_id), 'url':resp.json()['url']})
         except ValueError:
             logger.debug("Failed to get thumbnail URL for %s - %s" % (frame_id, resp.status_code))

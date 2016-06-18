@@ -11,7 +11,7 @@ from datetime import datetime
 import json
 
 from observe.schedule import format_request, submit_scheduler_api, get_headers
-from observe.images import check_request_api, download_frames, find_frames
+from observe.images import check_request_api, download_frames, find_frames, get_thumbnails
 from observe.models import Asteroid, Observation
 import logging
 
@@ -28,7 +28,7 @@ class EmailForm(forms.Form):
 
 class ObservationView(DetailView):
     """
-    Schedule observations on LCOGT given a full set of observing parameters
+    View observations on LCOGT
     """
     model = Observation
     template_name = 'observe/observation.html'
@@ -37,11 +37,11 @@ class ObservationView(DetailView):
         # Call the base implementation first to get a context
         context = super(ObservationView, self).get_context_data(**kwargs)
         # Add in a QuerySet of all the books
-        rids = self.object.request_ids
-        if rids:
-            headers = get_headers(url = 'https://lcogt.net/observe/api/api-token-auth/')
-            request_ids = json.loads(rids)
-            context['frames'] = find_frames(request_ids, headers)
+        fids = self.object.frame_ids
+        if fids:
+            headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
+            frame_ids = [{'id':f} for f in json.loads(fids)]
+            context['frames'] = get_thumbnails(frame_ids, headers)
         return context
 
 class AsteroidView(DetailView):
@@ -76,21 +76,23 @@ class AsteroidSchedule(FormView):
 
 
 def update_status(req):
-    headers = get_headers(url = 'https://lcogt.net/observe/api/api-token-auth/')
-    status = check_request_api(req.track_num, headers)
-    request_ids = [r['request_number'] for r in status['requests']]
-    frames = find_frames(request_ids, headers)
-    req.request_ids = json.dumps(request_ids)
-    logger.debug("Frames available for %s = %s" % (req.track_num, len(frames)))
-    if len(frames) == req.asteroid.exposure_count:
-        logger.debug("Downloading %s frames" % len(frames))
-        req.status = state_options[status['state']]
-        req.update = datetime.utcnow()
-    else:
-        frames = False
-    req.save()
-    return frames
-
+    if not req.request_ids:
+        logger.debug("Finding request IDs for {}".format(req))
+        headers = get_headers(url = 'https://lcogt.net/observe/api/api-token-auth/')
+        status = check_request_api(req.track_num, headers)
+        request_ids = [r['request_number'] for r in status['requests']]
+        req.request_ids = json.dumps(request_ids)
+        req.save()
+    if not req.frame_ids:
+        logger.debug("Finding frame IDs for {}".format(req))
+        archive_headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
+        frames = find_frames(json.loads(req.request_ids), archive_headers)
+        req.frame_ids = json.dumps(frames)
+        if len(frames) == req.asteroid.exposure_count:
+            req.status = 'C'
+            req.update = datetime.utcnow()
+            req.save()
+    return
 
 def send_request(asteroid, form):
     obs_params = format_request(asteroid)
