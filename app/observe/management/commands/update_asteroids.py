@@ -14,6 +14,6 @@ class Command(BaseCommand):
             frames, last_update = find_frames_object(ast)
             confirm = download_frames(ast.text_name(), frames, download_dir=settings.MEDIA_ROOT)
             num_images = make_timelapse(ast)
-            ast.num_observations += num_images
+            ast.num_observations = num_images
             ast.last_update = last_update
             ast.save()
