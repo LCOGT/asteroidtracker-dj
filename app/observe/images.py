@@ -46,10 +46,12 @@ def find_frames_object(asteroid):
     url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&start={}&OBJECT={}'.format(last_update, asteroid.name)
     response = requests.get(url, headers=archive_headers).json()
     frames = response['results']
+    logger.debug("Found {} frames".format(len(frames)))
     if not response:
         # No frames for this object since last update
         return None
     for frame in frames:
+        logger.debug("Looking for frame {}".format(frame['id']))
         last_update, date_obs = set_update_time(frame['DATE_OBS'], asteroid.last_update)
         thumbnail_url = "https://thumbnails.lcogt.net/{}/?width=1000&height=1000&label={}".format(frame['id'], date_obs.strftime("%d %b %Y %H:%M"))
         try:
@@ -75,7 +77,7 @@ def find_frames(user_reqs, headers=None):
     logger.debug('Frames %s' % len(frames))
     return frames
 
-def get_thumbnails(frames, headers=None):    
+def get_thumbnails(frames, headers=None):
     frame_urls = []
     for frame_id in frames:
         thumbnail_url = "https://thumbnails.lcogt.net/%s/?width=1000&height=1000" % frame_id['id']
