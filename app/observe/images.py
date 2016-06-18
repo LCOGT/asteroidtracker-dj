@@ -7,6 +7,7 @@ import glob
 from datetime import datetime
 from django.conf import settings
 from django.template import loader, Context
+from django.core.mail import send_mass_mail
 
 from observe.models import Asteroid
 from observe.schedule import get_headers
@@ -121,7 +122,7 @@ def make_timelapse(asteroid):
         subprocess.call(video_options, shell=True)
     return len(files)
 
-def email_user(observation_list):
+def email_users(observation_list):
     email_list = []
     for observation in observation_list:
         data = {'observation':observation }
@@ -129,7 +130,7 @@ def email_user(observation_list):
         t = loader.get_template('observe/notify_email.txt')
         text_body = t.render(c)
 
-        email_params = ('Asteroid Day: Update on your asteroid', text_body, 'portal@lcogt.net', [user.email])
+        email_params = ('Asteroid Day: Update on your asteroid', text_body, 'neox@lcogt.net', [observation.email])
         email_list.append(email_params)
     send_mass_mail(tuple(email_list))
     return

@@ -1,10 +1,10 @@
 Success!
 
-Your request for an observation of {{observation.asteroid.name}} took place on {{observation.last_update}}.
+Your request for an observation of asteroid {{observation.asteroid.name}} took place on {{observation.last_update}}.
 
 To view your images and the updated timelapse of the asteroid moving through space, visit:
 
-{% url 'request_detail' observation.id %}
+http://asteroidday.lcogt.net{% url 'request_detail' observation.id %}
 
 Thanks for being involved with this Asteroid Day campaign, brought to you by Las Cumbres Observatory.
 

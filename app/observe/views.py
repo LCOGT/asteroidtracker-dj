@@ -92,7 +92,8 @@ def update_status(req):
             req.status = 'C'
             req.update = datetime.utcnow()
             req.save()
-    return
+        return True
+    return False
 
 def send_request(asteroid, form):
     obs_params = format_request(asteroid)

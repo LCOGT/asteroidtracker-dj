@@ -21,11 +21,14 @@
     <i class="glyphicon glyphicon-time big-icon"></i><br/>
     Currently waiting for observations to complete.</p>
 {% endif %}
+<h3>Information</h3>
+<p>{{observation.asteroid.information|safe}}</p>
+</div>
 </div>
 <div class="col-md-4">
     <h3>Your Observations</h3>
       {% for frame in frames%}
-      <img src="{{frame.url}}" class="img-responsive"/>
+      <a href="{{frame.url}}"><img src="{{frame.url}}" class="img-responsive img-thumbnail"/></a><br/>
     {% empty %}
     <p><i class="glyphicon glyphicon-time"></i>
       Sorry, we're still waiting for images for you.</p>
@@ -43,15 +46,6 @@
     </p>
 
 </div>
-</div>
-<div class="row">
-  <div class="col-md-2">
-  </div>
-  <div class="col-md-10">
-    <h3>Information</h3>
-    <p>{{observation.asteroid.information|safe}}</p>
-  </div>
-
 </div>
 
 {% endblock %}

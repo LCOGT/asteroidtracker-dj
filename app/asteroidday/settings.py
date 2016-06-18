@@ -134,7 +134,15 @@ MEDIA_ROOT = '/var/www/apps/asteroidday/observe/media/'
 PROPOSAL_USER = os.environ.get('ASTEROIDDAY_API_USER', '')
 PROPOSAL_PASSWD = os.environ.get('ASTEROIDDAY_API_PASSWD', '')
 
-FFMPEG = '/root/bin/ffmpeg'
+FFMPEG = '/bin/ffmpeg'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS       = True
+EMAIL_HOST          = 'smtp.gmail.com'
+EMAIL_HOST_USER     = os.environ.get('ASTEROIDDAY_EMAIL_USERNAME','')
+EMAIL_HOST_PASSWORD = os.environ.get('ASTEROIDDAY_EMAIL_PASSWORD','')
+EMAIL_PORT          =  587
+DEFAULT_FROM_EMAIL  = 'Asteroid Day <neox@lcogt.net>'
 
 LOGGING = {
     'version': 1,
