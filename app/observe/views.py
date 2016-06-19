@@ -92,7 +92,7 @@ def update_status(req):
             req.status = 'C'
             req.update = datetime.utcnow()
             req.save()
-        return True
+            return True
     return False
 
 def send_request(asteroid, form):
