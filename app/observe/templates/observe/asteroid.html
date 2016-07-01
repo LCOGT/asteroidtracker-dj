@@ -4,12 +4,13 @@
 
 <div class="row">
   <h1>{{asteroid.name}}</h1>
-  <h3>Track this Asteroid!</h3>
+  {% if asteroid.active %}<h3>Track this Asteroid!</h3>{% endif %}
 </div>
 <div class="row">
   <div class="col-md-2">
   </div>
   <div class="col-md-10">
+    {% if asteroid.active %}
     <p>Enter your email address and Las Cumbres Observatory will schedule observations of {{asteroid.name}} just for you!</p>
     <form action="{% url 'asteroid_schedule' asteroid.id %}" method="post">
       {% csrf_token%}
@@ -20,8 +21,9 @@
       </span>
     </div>
     </form>
-    <p>Everyone's images are automatically combined into a timelapse video, shown below.</p>
     <p>If you've already joined this campaign, enter your email address and we'll look up the status of your images.</p>
+    {% endif %}
+    <p>Everyone's images are automatically combined into a timelapse video, shown below.</p>
   </div>
 </div>
 <div class="row">
@@ -31,7 +33,7 @@
   {% if asteroid.num_observations > 0 %}
   <video width="100%" controls>
      <source src="{{asteroid.timelapse_url}}" type="video/mp4" >
-  Your browser does not support the video tag. Try <a href="asteroid.timelapse_url">downloading</a> instead.
+  Your browser does not support the video tag. Try <a href="{{asteroid.timelapse_url}}">downloading</a> instead.
   </video>
   <p class="caption">Timelapse made from {{asteroid.num_observations}} images, last updated {{asteroid.last_update}}</p>
   {% else %}

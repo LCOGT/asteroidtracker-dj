@@ -20,7 +20,7 @@ state_options = {'PENDING' : 'P', 'COMPLETED' :'C', 'CANCELED':'N', 'FAILED':'F'
 
 
 def home(request):
-    asteroids = Asteroid.objects.all()
+    asteroids = Asteroid.objects.all().order_by('-end')
     return render(request, 'observe/home.html', {'asteroids':asteroids})
 
 class EmailForm(forms.Form):
@@ -67,7 +67,7 @@ class AsteroidSchedule(FormView):
         try:
             req = Observation.objects.get(asteroid=self.body, email=form.cleaned_data['user_name'])
         except Observation.DoesNotExist:
-            resp = send_request(self.body, form)
+            resp = send_request(self.body, form.cleaned_data)
             messages.add_message(self.request, resp['code'] , resp['msg'])
             return super(AsteroidSchedule, self).form_valid(form)
 
@@ -80,6 +80,8 @@ def update_status(req):
         logger.debug("Finding request IDs for {}".format(req))
         headers = get_headers(url = 'https://lcogt.net/observe/api/api-token-auth/')
         status = check_request_api(req.track_num, headers)
+        logger.debug(status['requests'][0]['windows'][0]['end'])
+        req.status = state_options.get(status['state'],'U')
         request_ids = [r['request_number'] for r in status['requests']]
         req.request_ids = json.dumps(request_ids)
         req.save()
@@ -102,7 +104,7 @@ def send_request(asteroid, form):
         req_params = {
             'track_num' : resp_msg,
             'status'    : 'P',
-            'email'     : form.cleaned_data['user_name'],
+            'email'     : form['user_name'],
             'asteroid'  : asteroid,
         }
         r = Observation(**req_params)

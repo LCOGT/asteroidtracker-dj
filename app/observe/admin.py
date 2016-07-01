@@ -23,10 +23,14 @@ class FlatPageAdmin(FlatPageAdmin):
             kwargs["initial"] = [Site.objects.get_current()]
         return super(FlatPageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+class ObservationAdmin(admin.ModelAdmin):
+    list_display = ['track_num','email','asteroid','status']
+    list_filter = ['status']
+
 # Re-register FlatPageAdmin
 admin.site.unregister(FlatPage)
 admin.site.register(FlatPage, FlatPageAdmin)
 
 
 admin.site.register(Asteroid)
-admin.site.register(Observation)
+admin.site.register(Observation, ObservationAdmin)

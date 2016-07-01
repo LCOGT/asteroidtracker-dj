@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         updated_reqs = []
-        requests = Observation.objects.filter(~Q(status='C')|~Q(status='F'))
+        requests = Observation.objects.filter(~Q(status='C'), ~Q(status='F'))
         self.stdout.write("==== %s Pending requests %s ====" % (requests.count(), datetime.now().strftime('%Y-%m-%d %H:%M')))
         for req in requests:
             self.stdout.write("Updating {}".format(req))
