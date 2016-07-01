@@ -116,7 +116,7 @@ def make_timelapse(asteroid):
     logger.debug('Making timelapse for %s' % asteroid)
     path = "%s%s_*.jpg" % (settings.MEDIA_ROOT,asteroid.text_name())
     files = glob.glob(path)
-    if len(files) > 0:
+    if len(files) > 0 and len(files) > asteroid.num_observations:
         outfile = '%s%s.mp4' % (settings.MEDIA_ROOT, asteroid.text_name())
         video_options = "ffmpeg -framerate 25 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -pix_fmt yuv420p {} -y".format(path, outfile)
         subprocess.call(video_options, shell=True)
