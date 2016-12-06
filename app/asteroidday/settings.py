@@ -164,8 +164,7 @@ LOGGING = {
     'handlers': {
         'file': {
             'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': 'asteroid.log',
+            'class': 'logging.StreamHandler',
             'formatter': 'verbose',
             'filters': ['require_debug_false']
         },

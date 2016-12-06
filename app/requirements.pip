@@ -1,6 +1,5 @@
-uwsgi==2.0.8
 astropy
-Django
-mysqlclient
+Django>=1.10,<1.11
+MySQL-python
 numpy
 requests
