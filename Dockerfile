@@ -22,17 +22,16 @@ ENV DJANGO_SETTINGS_MODULE asteroidday.settings
 
 # Install package repositories
 RUN yum -y install epel-release \
-	&& yum -y install http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-1.el7.nux.noarch.rpm \
-	&& yum -y install cronie ffmpeg gcc make libjpeg-devel nginx python-pip mysql-devel python-devel \
-  && yum -y install supervisor libssl \
-	&& yum -y groupinstall "Development Tools"\
-  && yum -y install ImageMagick \
-	&& yum -y update
+    && yum -y install http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-1.el7.nux.noarch.rpm \
+    && yum -y install cronie ffmpeg ImageMagick MySQL-python nginx python-pip supervisor uwsgi-plugin-python \
+    && yum -y update \
+    && yum -y clean all
 
 # Copy the LCOGT Asteroid Day requirements file
 COPY app/requirements.pip /var/www/apps/asteroidday/requirements.pip
 
-RUN pip install -r /var/www/apps/asteroidday/requirements.pip
+RUN pip install -r /var/www/apps/asteroidday/requirements.pip\
+        && rm -rf ~/.cache/pip ~/.pip
 
 # Setup the Python Django environment
 ENV PYTHONPATH /var/www/apps

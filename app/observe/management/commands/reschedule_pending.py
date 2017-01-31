@@ -15,7 +15,7 @@ class Command(BaseCommand):
         self.stdout.write("==== Updating %s Pending %s  ====" % (pending.count(), datetime.now().strftime('%Y-%m-%d %H:%M')))
         reschedule = []
         headers = get_headers(url = 'https://lcogt.net/observe/api/api-token-auth/')
-        for obs in pending[:10]:
+        for obs in pending:
             status = check_request_api(obs.track_num, headers)
             state = state_options.get(status['state'],'U')
             obs.status = state

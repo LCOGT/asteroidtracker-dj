@@ -131,8 +131,15 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe'),]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = '/var/www/apps/asteroidday/observe/media/'
 
-PROPOSAL_USER = os.environ.get('ASTEROIDDAY_API_USER', '')
-PROPOSAL_PASSWD = os.environ.get('ASTEROIDDAY_API_PASSWD', '')
+OBSERVE_URL = 'https://lco.global/observe/'
+API_URL = 'https://lco.global/observe/api/user_requests/'
+TOKEN_API = 'api-token-auth/'
+THUMBNAIL_URL = 'https://thumbnails.lco.global/'
+ARCHIVE_URL = 'https://archive-api.lco.global/'
+
+PROPOSAL_USER = os.environ.get('PROPOSAL_USER','')
+PROPOSAL_PASSWD = os.environ.get('PROPOSAL_PASSWD','')
+PROPOSAL_CODE = os.environ.get('PROPOSAL_CODE','')
 
 FFMPEG = '/bin/ffmpeg'
 

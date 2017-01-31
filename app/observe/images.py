@@ -25,7 +25,7 @@ def check_request_api(tracking_num, headers=None):
     if response.status_code == 200:
         # Only proceed if there is a successful response
         response = response.json()
-        logger.debug("Checking status of %s requests" % len(response['requests']))
+        logger.debug("Checking status of %s requests" % len(response.get('requests','')))
     return response
 
 def set_update_time(date_obs, last_update):
