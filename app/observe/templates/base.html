@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <link rel="icon" href="{% static "images/favicon.png"%}">
 
-    <title>{% block title %}Asteroid Tracker{% endblock %} powered by LCOGT</title>
+    <title>{% block title %}Asteroid Tracker{% endblock %} powered by LCO</title>
 
     <!-- Bootstrap core CSS -->
     <link href="{% static "css/bootstrap.min.css"%}" rel="stylesheet" />
@@ -49,7 +49,7 @@
               </ul>
               <div class="nav navbar-nav navbar-right">
                 <ul class="nav navbar-nav">
-                  <li><a href="http://lcogt.net/">a Las Cumbres Observatory project</a></li>
+                  <li class="logo"><a href="http://lco.global/"><img src="{% static 'images/LCO_logo_BW_Horizontal_sm.png' %}" alt="a Las Cumbres Observatory project" /></a></li>
                 </ul>
               </div>
             </div><!--/.nav-collapse -->
@@ -69,7 +69,7 @@
 
     <footer>
       <div class="inner">
-        <p>&copy; {% now "Y" %} Las Cumbres Observatory Global Telescope Network, Inc.</p>
+        <p>&copy; {% now "Y" %} Las Cumbres Observatory</p>
       </div>
     </footer>
 

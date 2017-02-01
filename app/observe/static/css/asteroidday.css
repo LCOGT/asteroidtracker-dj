@@ -22,6 +22,8 @@ h1, h2, h3, h4, h5 {
     font-size: 75px;
 }
 
+.navbar .logo img {max-height:25px;}
+
 .masthead {color:#dd5f32;}
 
 .topbar {background:#eaede8 none repeat scroll 0 0;}

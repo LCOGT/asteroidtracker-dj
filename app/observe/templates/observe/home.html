@@ -5,16 +5,34 @@
 
             <h1 class="masthead">Asteroid Tracker</h1>
             <p class="lead">
-              Our international campaign for Asteroid Day 2016 to observe Near Earth Asteroids with Las Cumbres Observatory has now ended.<br/>Click the asteroids below to see timelapses created by over 500 citizen scientists!</p>
+              Join our international campaign to observe Near Earth Asteroids with Las Cumbres Observatory.<br/>Click the asteroids below to see timelapses created by over 500 citizen scientists!</p>
             <div class="panels-wrapper">
               <div class="row panels">
-                {% for asteroid in asteroids %}
+                <h3>Active Asteroid Campaigns</h3>
+                {% for asteroid in asteroids_active %}
                 <div class="col-sm-6 panel-item">
                   <a href="{% url 'asteroid_detail' pk=asteroid.id %}" class="panel panel-image">
                     <div class="panel-icon">
                       <i class="fa fa-cog icon"></i>
                     </div>
-                    <div class="panel-heading"><img height="141" src="{% static "static/images/" %}{{asteroid.image}}" alt="{{asteroid.name}}" class="img-responsive-sm"></div>
+                    <div class="panel-heading"><img height="141" src="{{ MEDIA_URL}}{{asteroid.image}}" alt="{{asteroid.name}}" class="img-responsive-sm"></div>
+                    <div class="panel-body">
+                      <h3 class="panel-title">{{asteroid.name}}</h3>
+                      <p>{{asteroid.teaser}}</p>
+                    </div>
+                  </a>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="row panels">
+                <h3>Past Asteroid Campaigns</h3>
+                {% for asteroid in asteroids_past %}
+                <div class="col-sm-6 panel-item">
+                  <a href="{% url 'asteroid_detail' pk=asteroid.id %}" class="panel panel-image">
+                    <div class="panel-icon">
+                      <i class="fa fa-cog icon"></i>
+                    </div>
+                    <div class="panel-heading"><img height="141" src="{{ MEDIA_URL}}{{asteroid.image}}" alt="{{asteroid.name}}" class="img-responsive-sm"></div>
                     <div class="panel-body">
                       <h3 class="panel-title">{{asteroid.name}}</h3>
                       <p>{{asteroid.teaser}}</p>

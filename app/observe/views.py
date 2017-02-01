@@ -21,7 +21,10 @@ state_options = {'PENDING' : 'P', 'COMPLETED' :'C', 'CANCELED':'N', 'FAILED':'F'
 
 def home(request):
     asteroids = Asteroid.objects.all().order_by('-end')
-    return render(request, 'observe/home.html', {'asteroids':asteroids})
+    return render(request,
+                'observe/home.html',
+                {'asteroids_past':asteroids.filter(active=False),
+                'asteroids_active':asteroids.filter(active=True)})
 
 class EmailForm(forms.Form):
     user_name = forms.CharField()
