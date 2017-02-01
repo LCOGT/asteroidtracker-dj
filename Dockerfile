@@ -1,15 +1,4 @@
-################################################################################
-#
-# Runs the LCOGT Asteroid Day app using nginx + uwsgi
-#
-# Build with
-# docker build -t docker.lcogt.net/asteroidday:latest .
-#
-# Push to docker registry with
-# docker push docker.lcogt.net/asteroidday:latest
-#
-################################################################################
-FROM centos:centos7
+FROM centos:7
 MAINTAINER LCOGT <webmaster@lcogt.net>
 
 # nginx (http protocol) runs on port 80
@@ -27,26 +16,20 @@ RUN yum -y install epel-release \
     && yum -y update \
     && yum -y clean all
 
-# Copy the LCOGT Asteroid Day requirements file
-COPY app/requirements.pip /var/www/apps/asteroidday/requirements.pip
-
-RUN pip install -r /var/www/apps/asteroidday/requirements.pip\
-        && rm -rf ~/.cache/pip ~/.pip
-
-# Setup the Python Django environment
-ENV PYTHONPATH /var/www/apps
-ENV DJANGO_SETTINGS_MODULE asteroidday.settings
-
 # Ensure crond will run on all host operating systems
 RUN sed -i -e 's/\(session\s*required\s*pam_loginuid.so\)/#\1/' /etc/pam.d/crond
+
+# Copy the LCOGT Asteroid Day requirements file
+COPY app/requirements.pip /var/www/apps/asteroidday/requirements.pip
+RUN pip install --upgrade pip \
+        && pip install -r /var/www/apps/asteroidday/requirements.pip \
+        && rm -rf ~/.cache ~/.pip
 
 # Copy configuration files
 COPY config/uwsgi.ini /etc/uwsgi.ini
 COPY config/nginx/* /etc/nginx/
 COPY config/processes.ini /etc/supervisord.d/processes.ini
 COPY config/crontab.root /var/spool/cron/root
-
-# Copy configuration files
 COPY config/init /init
 
 # Copy the LCOGT Asteroid Day files
