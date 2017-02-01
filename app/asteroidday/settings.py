@@ -26,7 +26,6 @@ DATABASES = {
         "USER": os.environ.get('ASTEROIDDAY_DB_USER', ''),
         "PASSWORD": os.environ.get('ASTEROIDDAY_DB_PASSWD', ''),
         "HOST": os.environ.get('ASTEROIDDAY_DB_HOST', ''),
-        "OPTIONS": {'init_command': 'SET storage_engine=INNODB'} if PRODUCTION else {},
         "ENGINE": "django.db.backends.mysql",
         }
     }

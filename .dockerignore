@@ -4,5 +4,4 @@ app/observe/media/*
 *.pyc
 *.pyo
 *.db
-*.log
 *.mp4
