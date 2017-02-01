@@ -125,7 +125,7 @@ USE_TZ = False
 
 STATIC_ROOT = '/var/www/html/static/'
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe'),]
+STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = '/var/www/apps/asteroidday/observe/media/'
