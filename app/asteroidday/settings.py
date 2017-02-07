@@ -131,13 +131,13 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = '/var/www/html/media/'
 
-OBSERVE_URL = 'https://lco.global/observe/'
+OBSERVE_URL = 'https://lco.global/observe/api/'
 API_URL = 'https://lco.global/observe/api/user_requests/'
 TOKEN_API = 'api-token-auth/'
 THUMBNAIL_URL = 'https://thumbnails.lco.global/'
 ARCHIVE_URL = 'https://archive-api.lco.global/'
 
-OBSERVE_TOKEN = urljoin(OBSERVE_URL,'/api/',TOKEN_API)
+OBSERVE_TOKEN = urljoin(OBSERVE_URL,TOKEN_API)
 ARCHIVE_TOKEN = urljoin(ARCHIVE_URL, TOKEN_API)
 
 PROPOSAL_USER = os.environ.get('PROPOSAL_USER','')

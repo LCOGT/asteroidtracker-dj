@@ -32,7 +32,11 @@ def submit_scheduler_api(params):
 
 def get_headers(url):
     auth_data = {'username':settings.PROPOSAL_USER, 'password':settings.PROPOSAL_PASSWD}
-    response = requests.post(url, data = auth_data).json()
+    response = requests.post(url, data = auth_data)
+    if response.status_code == 200:
+        response = response.json()
+    else:
+        return False
     token = response.get('token')
     # Store the Authorization header
     headers = {'Authorization': 'Token {}'.format(token)}

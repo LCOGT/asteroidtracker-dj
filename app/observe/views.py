@@ -82,7 +82,11 @@ def update_status(req):
     if not req.request_ids:
         logger.debug("Finding request IDs for {}".format(req))
         headers = get_headers(url = settings.OBSERVE_TOKEN)
+        print(headers)
         status = check_request_api(req.track_num, headers)
+        print(status)
+        if not status:
+            return False
         logger.debug(status['requests'][0]['windows'][0]['end'])
         req.status = state_options.get(status['state'],'U')
         request_ids = [r['request_number'] for r in status['requests']]
@@ -93,6 +97,7 @@ def update_status(req):
         archive_headers = get_headers(url = settings.ARCHIVE_TOKEN)
         frames = find_frames(json.loads(req.request_ids), archive_headers)
         req.frame_ids = json.dumps(frames)
+        logger.debug(frames)
         if len(frames) == req.asteroid.exposure_count:
             req.status = 'C'
             req.update = datetime.utcnow()
