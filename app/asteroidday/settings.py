@@ -136,6 +136,9 @@ TOKEN_API = 'api-token-auth/'
 THUMBNAIL_URL = 'https://thumbnails.lco.global/'
 ARCHIVE_URL = 'https://archive-api.lco.global/'
 
+OBSERVE_TOKEN = os.path.join(OBSERVE_URL,'/api/',TOKEN_API)
+ARCHIVE_TOKEN = os.path.join(ARCHIVE_TOKEN, TOKEN_API)
+
 PROPOSAL_USER = os.environ.get('PROPOSAL_USER','')
 PROPOSAL_PASSWD = os.environ.get('PROPOSAL_PASSWD','')
 PROPOSAL_CODE = os.environ.get('PROPOSAL_CODE','')

@@ -81,7 +81,7 @@ class AsteroidSchedule(FormView):
 def update_status(req):
     if not req.request_ids:
         logger.debug("Finding request IDs for {}".format(req))
-        headers = get_headers(url = 'https://lcogt.net/observe/api/api-token-auth/')
+        headers = get_headers(url = settings.OBSERVE_TOKEN)
         status = check_request_api(req.track_num, headers)
         logger.debug(status['requests'][0]['windows'][0]['end'])
         req.status = state_options.get(status['state'],'U')
@@ -90,7 +90,7 @@ def update_status(req):
         req.save()
     if not req.frame_ids:
         logger.debug("Finding frame IDs for {}".format(req))
-        archive_headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
+        archive_headers = get_headers(url = settings.ARCHIVE_TOKEN)
         frames = find_frames(json.loads(req.request_ids), archive_headers)
         req.frame_ids = json.dumps(frames)
         if len(frames) == req.asteroid.exposure_count:

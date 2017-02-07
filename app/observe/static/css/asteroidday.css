@@ -1,7 +1,7 @@
 
 html, body{
   height:100%;
-  background:#faf6eb url('../images/asteroidday_lg_bg.jpg') no-repeat 0 100%;
+  background:#faf6eb url('../images/asteroidday_lg_bg.jpg') no-repeat bottom left fixed;
   color:#7c6e64;
 }
 
@@ -15,6 +15,12 @@ html, body{
 h1, h2, h3, h4, h5 {
   text-align: center;
   color: #dd5f32;;
+}
+
+p {
+  font-size: 18px;
+  line-height: 1.5em;
+  margin: 0 0 30px;
 }
 
 .big-icon {

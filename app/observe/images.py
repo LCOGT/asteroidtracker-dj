@@ -19,8 +19,9 @@ def check_request_api(tracking_num, headers=None):
     tracking_num: Finds all frames corresponding to this tracking number for UserRequest
     '''
     # Make an authenticated request with our headers
-    url = 'https://lcogt.net/observe/api/user_requests/%s/' % tracking_num
-    response = requests.get(url, headers=headers)
+    url = '/api/user_requests/%s/' % tracking_num
+    full_url = os.path.join(settings.OBSERVE_URL,url)
+    response = requests.get(full_url, headers=headers)
     frames = []
     if response.status_code == 200:
         # Only proceed if there is a successful response
@@ -43,9 +44,10 @@ def find_frames_object(asteroid):
     frames = []
     frame_urls = []
     last_update = asteroid.last_update.strftime("%Y-%m-%d %H:%M")
-    archive_headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
-    url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&start={}&OBJECT={}'.format(last_update, asteroid.name)
-    response = requests.get(url, headers=archive_headers).json()
+    archive_headers = get_headers(url = settings.ARCHIVE_TOKEN)
+    url = '/frames/?RLEVEL=11&start={}&OBJECT={}'.format(last_update, asteroid.name)
+    full_url = os.path.join(settings.ARCHIVE_URL, url)
+    response = requests.get(full_url, headers=archive_headers).json()
     frames = response['results']
     logger.debug("Found {} frames".format(len(frames)))
     if not response:
@@ -54,7 +56,8 @@ def find_frames_object(asteroid):
     for frame in frames:
         logger.debug("Looking for frame {}".format(frame['id']))
         last_update, date_obs = set_update_time(frame['DATE_OBS'], asteroid.last_update)
-        thumbnail_url = "https://thumbnails.lcogt.net/{}/?width=1000&height=1000&label={}".format(frame['id'], date_obs.strftime("%d %b %Y %H:%M"))
+        url = "{}/?width=1000&height=1000&label={}".format(frame['id'], date_obs.strftime("%d %b %Y %H:%M"))
+        thumbnail_url = os.path.join(settings.THUMBNAIL_URL, url)
         try:
             resp = requests.get(thumbnail_url, headers=archive_headers)
             frame_urls.append({'id':str(frame['id']), 'url':resp.json()['url'],'date_obs':date_obs})
@@ -71,8 +74,9 @@ def find_frames(user_reqs, headers=None):
     frames = []
     logger.debug("User request: %s" % user_reqs)
     for req in user_reqs:
-        url = 'http://archive-api.lcogt.net/frames/?RLEVEL=0&REQNUM={}'.format(req)
-        resp = requests.get(url, headers=headers).json()
+        url = '/frames/?RLEVEL=11&REQNUM={}'.format(req)
+        full_url = os.path.join(settings.ARCHIVE_URL, url)
+        resp = requests.get(full_url, headers=headers).json()
         if resp['count'] > 0:
             frames += [f['id'] for f in resp['results']]
     logger.debug('Frames %s' % len(frames))
@@ -81,7 +85,8 @@ def find_frames(user_reqs, headers=None):
 def get_thumbnails(frames, headers=None):
     frame_urls = []
     for frame_id in frames:
-        thumbnail_url = "https://thumbnails.lcogt.net/%s/?width=1000&height=1000" % frame_id['id']
+        url = "/%s/?width=1000&height=1000" % frame_id['id']
+        thumbnail_url = os.path.join(settings.THUMBNAIL_URL, url)
         try:
             resp = requests.get(thumbnail_url, headers=headers)
             frame_urls.append({'id':str(frame_id), 'url':resp.json()['url']})
@@ -118,7 +123,7 @@ def make_timelapse(asteroid):
     files = glob.glob(path)
     if len(files) > 0 and len(files) > asteroid.num_observations:
         outfile = '%s%s.mp4' % (settings.MEDIA_ROOT, asteroid.text_name())
-        video_options = "ffmpeg -framerate 25 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -pix_fmt yuv420p {} -y".format(path, outfile)
+        video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -pix_fmt yuv420p {} -y".format(path, outfile)
         subprocess.call(video_options, shell=True)
     return len(files)
 
@@ -133,4 +138,5 @@ def email_users(observation_list):
         email_params = ('Asteroid Day: Update on your asteroid', text_body, 'neox@lcogt.net', [observation.email])
         email_list.append(email_params)
     send_mass_mail(tuple(email_list))
+    logger.debug('Emailed {}'.format(",".join(email_list)))
     return
