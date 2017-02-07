@@ -2,6 +2,7 @@ import requests
 import logging
 import json
 import os
+from urlparse import urljoin
 import subprocess
 import glob
 from datetime import datetime
@@ -20,7 +21,7 @@ def check_request_api(tracking_num, headers=None):
     '''
     # Make an authenticated request with our headers
     url = '/api/user_requests/%s/' % tracking_num
-    full_url = os.path.join(settings.OBSERVE_URL,url)
+    full_url = urljoin(settings.OBSERVE_URL,url)
     response = requests.get(full_url, headers=headers)
     frames = []
     if response.status_code == 200:
@@ -46,7 +47,7 @@ def find_frames_object(asteroid):
     last_update = asteroid.last_update.strftime("%Y-%m-%d %H:%M")
     archive_headers = get_headers(url = settings.ARCHIVE_TOKEN)
     url = '/frames/?RLEVEL=11&start={}&OBJECT={}'.format(last_update, asteroid.name)
-    full_url = os.path.join(settings.ARCHIVE_URL, url)
+    full_url = urljoin(settings.ARCHIVE_URL, url)
     response = requests.get(full_url, headers=archive_headers).json()
     frames = response['results']
     logger.debug("Found {} frames".format(len(frames)))
@@ -57,7 +58,7 @@ def find_frames_object(asteroid):
         logger.debug("Looking for frame {}".format(frame['id']))
         last_update, date_obs = set_update_time(frame['DATE_OBS'], asteroid.last_update)
         url = "{}/?width=1000&height=1000&label={}".format(frame['id'], date_obs.strftime("%d %b %Y %H:%M"))
-        thumbnail_url = os.path.join(settings.THUMBNAIL_URL, url)
+        thumbnail_url = urljoin(settings.THUMBNAIL_URL, url)
         try:
             resp = requests.get(thumbnail_url, headers=archive_headers)
             frame_urls.append({'id':str(frame['id']), 'url':resp.json()['url'],'date_obs':date_obs})
@@ -75,7 +76,7 @@ def find_frames(user_reqs, headers=None):
     logger.debug("User request: %s" % user_reqs)
     for req in user_reqs:
         url = '/frames/?RLEVEL=11&REQNUM={}'.format(req)
-        full_url = os.path.join(settings.ARCHIVE_URL, url)
+        full_url = urljoin(settings.ARCHIVE_URL, url)
         resp = requests.get(full_url, headers=headers).json()
         if resp['count'] > 0:
             frames += [f['id'] for f in resp['results']]
@@ -86,7 +87,7 @@ def get_thumbnails(frames, headers=None):
     frame_urls = []
     for frame_id in frames:
         url = "/%s/?width=1000&height=1000" % frame_id['id']
-        thumbnail_url = os.path.join(settings.THUMBNAIL_URL, url)
+        thumbnail_url = urljoin(settings.THUMBNAIL_URL, url)
         try:
             resp = requests.get(thumbnail_url, headers=headers)
             frame_urls.append({'id':str(frame_id), 'url':resp.json()['url']})
@@ -99,7 +100,7 @@ def download_frames(asteroid_name, frames, download_dir):
     for frame in frames:
         frame_date = frame['date_obs'].strftime("%Y%m%d%H%M%S")
         file_name = '%s_%s.jpg' % (asteroid_name, frame_date)
-        with open(os.path.join(download_dir, file_name), "wb") as f:
+        with open(urljoin(download_dir, file_name), "wb") as f:
             logger.debug("Downloading %s" % file_name)
             response = requests.get(frame['url'], stream=True)
             logger.debug(frame['url'])

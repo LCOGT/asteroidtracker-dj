@@ -1,5 +1,6 @@
 import os, sys
 from django.utils.crypto import get_random_string
+from urlparse import urljoin
 
 VERSION = '0.1'
 
@@ -128,7 +129,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = '/var/www/apps/asteroidday/observe/media/'
+MEDIA_ROOT = '/var/www/html/media/'
 
 OBSERVE_URL = 'https://lco.global/observe/'
 API_URL = 'https://lco.global/observe/api/user_requests/'
@@ -136,8 +137,8 @@ TOKEN_API = 'api-token-auth/'
 THUMBNAIL_URL = 'https://thumbnails.lco.global/'
 ARCHIVE_URL = 'https://archive-api.lco.global/'
 
-OBSERVE_TOKEN = os.path.join(OBSERVE_URL,'/api/',TOKEN_API)
-ARCHIVE_TOKEN = os.path.join(ARCHIVE_TOKEN, TOKEN_API)
+OBSERVE_TOKEN = urljoin(OBSERVE_URL,'/api/',TOKEN_API)
+ARCHIVE_TOKEN = urljoin(ARCHIVE_URL, TOKEN_API)
 
 PROPOSAL_USER = os.environ.get('PROPOSAL_USER','')
 PROPOSAL_PASSWD = os.environ.get('PROPOSAL_PASSWD','')
