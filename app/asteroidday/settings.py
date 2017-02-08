@@ -186,12 +186,12 @@ LOGGING = {
     },
     'loggers': {
             'django': {
-            'handlers': ['file'],
+            'handlers': ['console'],
             'level': 'ERROR',
             'propagate': False,
         },
         'asteroid': {
-            'handlers':['console','file'],
+            'handlers':['console'],
             'level' : 'DEBUG'
         }
     }

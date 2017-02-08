@@ -9,9 +9,19 @@ from observe.models import Observation, Asteroid
 class Command(BaseCommand):
     help = 'Update pending blocks if observation requests have been made'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--tracknum',
+            dest='tracknum',
+            default=False,
+            help='Tracking num to update',
+        )
+
     def handle(self, *args, **options):
         updated_reqs = []
         requests = Observation.objects.filter(~Q(status='C'), ~Q(status='F'))
+        if options['tracknum']:
+            requests = requests.filter(track_num=options['tracknum'])
         self.stdout.write("==== %s Pending requests %s ====" % (requests.count(), datetime.now().strftime('%Y-%m-%d %H:%M')))
         for req in requests:
             self.stdout.write("Updating {}".format(req))

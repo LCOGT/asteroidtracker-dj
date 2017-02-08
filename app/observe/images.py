@@ -73,6 +73,9 @@ def find_frames(user_reqs, headers=None):
     for req in user_reqs:
         url = '{}frames/?RLEVEL=11&REQNUM={}'.format(settings.ARCHIVE_URL, req)
         resp = requests.get(url, headers=headers).json()
+        if resp.get('detail',''):
+            logger.debug(resp['detail'])
+            continue
         if resp['count'] > 0:
             frames += [f['id'] for f in resp['results']]
     logger.debug('Frames %s' % len(frames))
@@ -134,8 +137,8 @@ def email_users(observation_list):
         t = loader.get_template('observe/notify_email.txt')
         text_body = t.render(c)
 
-        email_params = ('Asteroid Day: Update on your asteroid', text_body, 'neox@lcogt.net', [observation.email])
+        email_params = ('Asteroid Tracker: Update on your asteroid', text_body, 'neox@lcogt.net', [observation.email])
         email_list.append(email_params)
     send_mass_mail(tuple(email_list))
-    logger.debug('Emailed {}'.format(",".join(email_list)))
+    logger.debug('Emailed {} people'.format(len(observation_list)))
     return
