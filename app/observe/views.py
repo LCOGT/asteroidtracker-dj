@@ -10,7 +10,7 @@ from django.http import Http404
 from datetime import datetime
 import json
 
-from observe.schedule import format_request, submit_scheduler_api, get_headers
+from observe.schedule import format_request, submit_scheduler_api
 from observe.images import check_request_api, download_frames, find_frames, get_thumbnails
 from observe.models import Asteroid, Observation
 import logging
@@ -42,9 +42,8 @@ class ObservationView(DetailView):
         # Add in a QuerySet of all the books
         fids = self.object.frame_ids
         if fids:
-            headers = get_headers(url = 'https://archive-api.lcogt.net/api-token-auth/')
             frame_ids = [{'id':f} for f in json.loads(fids)]
-            context['frames'] = get_thumbnails(frame_ids, headers)
+            context['frames'] = get_thumbnails(frame_ids)
         return context
 
 class AsteroidView(DetailView):
@@ -81,10 +80,7 @@ class AsteroidSchedule(FormView):
 def update_status(req):
     if not req.request_ids:
         logger.debug("Finding request IDs for {}".format(req))
-        headers = get_headers(url = settings.OBSERVE_TOKEN)
-        print(headers)
-        status = check_request_api(req.track_num, headers)
-        print(status)
+        status = check_request_api(req.track_num)
         if not status:
             return False
         logger.debug(status['requests'][0]['windows'][0]['end'])
@@ -94,8 +90,7 @@ def update_status(req):
         req.save()
     if not req.frame_ids:
         logger.debug("Finding frame IDs for {}".format(req))
-        archive_headers = get_headers(url = settings.ARCHIVE_TOKEN)
-        frames = find_frames(json.loads(req.request_ids), archive_headers)
+        frames = find_frames(json.loads(req.request_ids)
         req.frame_ids = json.dumps(frames)
         logger.debug(frames)
         if len(frames) == req.asteroid.exposure_count:
