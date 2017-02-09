@@ -76,7 +76,7 @@ def find_frames(user_reqs):
         url = '{}frames/?RLEVEL=11&REQNUM={}'.format(settings.ARCHIVE_URL, req)
         resp = requests.get(url, headers=headers).json()
         if resp.get('detail',''):
-            logger.debug(resp['detail'])
+            logger.error(resp['detail'])
             continue
         if resp['count'] > 0:
             frames += [f['id'] for f in resp['results']]
@@ -103,7 +103,7 @@ def download_frames(asteroid_name, frames, download_dir):
         file_name = '%s_%s.jpg' % (asteroid_name, frame_date)
         full_filename = os.path.join(download_dir, file_name)
         if full_filename in current_files:
-            logger.debug("Frame {} already present".format(frame))
+            logger.debug("Frame {} already present".format(file_name))
             continue
         with open(full_filename, "wb") as f:
             logger.debug("Downloading %s" % file_name)
@@ -141,7 +141,7 @@ def email_users(observation_list):
         t = loader.get_template('observe/notify_email.txt')
         text_body = t.render(c)
 
-        email_params = ('Asteroid Tracker: Update on your asteroid', text_body, 'neox@lcogt.net', [observation.email])
+        email_params = ('Asteroid Tracker: Update on your asteroid', text_body, settings.DEFAULT_FROM_EMAIL, [observation.email])
         email_list.append(email_params)
     send_mass_mail(tuple(email_list))
     logger.debug('Emailed {} people'.format(len(observation_list)))

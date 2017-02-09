@@ -159,7 +159,7 @@ EMAIL_HOST          = 'smtp.gmail.com'
 EMAIL_HOST_USER     = os.environ.get('ASTEROIDDAY_EMAIL_USERNAME','')
 EMAIL_HOST_PASSWORD = os.environ.get('ASTEROIDDAY_EMAIL_PASSWORD','')
 EMAIL_PORT          =  587
-DEFAULT_FROM_EMAIL  = 'Asteroid Day <neox@lcogt.net>'
+DEFAULT_FROM_EMAIL  = 'Asteroid Tracker <streams@lco.global>'
 
 LOGGING = {
     'version': 1,

@@ -28,7 +28,7 @@ class FlatPageAdmin(FlatPageAdmin):
 
 class ObservationAdmin(admin.ModelAdmin):
     list_display = ['track_num','email','asteroid','status']
-    list_filter = ['status']
+    list_filter = ['status','asteroid']
 
 class AsteroidAdmin(admin.ModelAdmin):
     formfield_overrides = {

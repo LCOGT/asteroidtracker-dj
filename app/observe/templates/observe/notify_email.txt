@@ -4,9 +4,9 @@ Your request for an observation of asteroid {{observation.asteroid.name}} took p
 
 To view your images and the updated timelapse of the asteroid moving through space, visit:
 
-http://asteroidday.lcogt.net{% url 'request_detail' observation.id %}
+https://asteroidtracker.lco.global{% url 'request_detail' observation.id %}
 
 Thanks for being involved with this Asteroid Day campaign, brought to you by Las Cumbres Observatory.
 
-- Education team, Las Cumbres Observatory
-http://lcogt.net/
+- Education and Solar System teams, Las Cumbres Observatory
+http://lco.global/
