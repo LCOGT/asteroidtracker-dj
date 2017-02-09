@@ -11,10 +11,10 @@ def submit_scheduler_api(params):
     '''
     Send the observation parameters and the authentication cookie to the Scheduler API
     '''
-    bearer_token = os.environ.get('ODIN_TOKEN','')
-    headers = {'Authorization': 'Bearer {}'.format(bearer_token)}
+    headers = get_headers(mode='O')
     url = settings.SCHEDULE_API_URL
-    r = requests.post(url, data=params, headers=headers)
+    request_data = {'request_data':json.dumps(params),'proposal':settings.PROPOSAL_CODE}
+    r = requests.post(url, data=request_data, headers=headers)
     if r.status_code == 200:
         tracking_num = r.json()['id']
         logger.debug('Request submitted - %s' % tracking_num)
@@ -28,7 +28,7 @@ def get_headers(mode='O'):
         token = settings.ARCHIVE_TOKEN
         headers = {'Authorization': 'Token {}'.format(token)}
     elif mode == 'O':
-        token = settings.ODIN_TOKEN
+        token = odin_headers()
         headers = {'Authorization': 'Bearer {}'.format(token)}
     return headers
 
@@ -37,13 +37,12 @@ def odin_headers():
             'grant_type': 'password',
             'username': settings.PROPOSAL_USER,
             'password': settings.PROPOSAL_PASSWD,
-            'client_id': settings.ODIN_OAUTH_CLIENT['CLIENT_ID'],
-            'client_secret': settings.ODIN_OAUTH_CLIENT['CLIENT_SECRET']
+            'client_id': settings.CLIENT_ID,
+            'client_secret': settings.CLIENT_SECRET
         }
         response = requests.post(settings.OBSERVE_TOKEN_URL, data= auth_data)
         if response.status_code == 200:
-            settings.ODIN_TOKEN = response.json()['access_token']
-            return True
+            return response.json()['access_token']
         else:
             return False
 
@@ -56,7 +55,6 @@ def archive_headers(url):
         return False
     token = response.get('token')
     # Store the Authorization header
-    settings.ARCHIVE_TOKEN = token
     return True
 
 def format_request(asteroid):

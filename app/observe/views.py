@@ -90,7 +90,7 @@ def update_status(req):
         req.save()
     if not req.frame_ids:
         logger.debug("Finding frame IDs for {}".format(req))
-        frames = find_frames(json.loads(req.request_ids)
+        frames = find_frames(json.loads(req.request_ids))
         req.frame_ids = json.dumps(frames)
         logger.debug(frames)
         if len(frames) == req.asteroid.exposure_count:

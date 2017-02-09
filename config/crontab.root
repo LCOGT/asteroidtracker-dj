@@ -1,2 +1,2 @@
-*/30 * * * * source /var/www/apps/asteroidday/cronwrapper; python /var/www/apps/asteroidday/manage.py update_asteroids >> /cron_debug.log
-*/30 * * * * source /var/www/apps/asteroidday/cronwrapper; python /var/www/apps/asteroidday/manage.py update_requests >> /cron_debug.log
+*/30 * * * * source /var/www/apps/asteroidday/cronwrapper; python /var/www/apps/asteroidday/manage.py update_asteroids
+*/30 * * * * source /var/www/apps/asteroidday/cronwrapper; python /var/www/apps/asteroidday/manage.py update_requests
