@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load markdown_deux_tags %}
 
 {% block title %}{{ flatpage.title }}{% endblock %}
 
@@ -8,7 +9,7 @@
   </div>
   <div class="col-md-10">
   <h1>{{flatpage.title}}</h1>
-  {{ flatpage.content|safe }}
+  {{ flatpage.content|markdown }}
 </div>
 </div>
 {% endblock %}

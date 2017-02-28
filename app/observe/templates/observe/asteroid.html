@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load markdown_deux_tags %}
+
 
 {% block main %}
 
@@ -42,7 +44,7 @@
     Currently waiting for observations to complete.</p>{% endif %}
 
     <h3>Information</h3>
-    <p>{{asteroid.information|safe}}</p>
+    <p>{{asteroid.information|markdown}}</p>
   </div>
 
 </div>
