@@ -30,12 +30,17 @@ STATUS_CHOICES = (
 
 ELEMENTS_TYPES = (('MPC_MINOR_PLANET','MPC Minor Planet'),('MPC_COMET','MPC Comet'))
 
+INSTRUMENTS =  (('1M0-SCICAM-SBIG', '1m'),
+                ('2M0-SCICAM-SPECTRAL', '2m'),
+                ('0M4-SCICAM-SBIG', '0.4m')
+                    )
+
 class Asteroid(models.Model):
     name                = models.CharField('Designation',max_length=15, blank=True, null=True)
     source_type         = models.CharField('Type of object',max_length=1,choices=OBJECT_TYPES,blank=True, null=True)
     elements_type       = models.CharField('Elements type', max_length=16, choices=ELEMENTS_TYPES,blank=True, null=True)
     active              = models.BooleanField('Actively following?', default=False)
-    epochofel           = models.DateTimeField('Epoch of elements',blank=True, null=True)
+    epochofel           = models.FloatField('Epoch of elements',blank=True, null=True)
     orbinc              = models.FloatField('Orbital inclination in deg',blank=True, null=True)
     longascnode         = models.FloatField('Longitude of Ascending Node (deg)',blank=True, null=True)
     argofperih          = models.FloatField('Arg of perihelion (deg)',blank=True, null=True)
@@ -45,9 +50,9 @@ class Asteroid(models.Model):
     exposure            = models.IntegerField(default=0)
     filter_name         = models.CharField(max_length=10)
     exposure_count      = models.IntegerField(default=1)
-    start               = models.DateTimeField(default=datetime.utcnow())
-    end                 = models.DateTimeField(default=datetime.utcnow())
-    instrument          = models.CharField(max_length=30)
+    start               = models.DateTimeField(default=django.utils.timezone.now)
+    end                 = models.DateTimeField(default=django.utils.timezone.now)
+    instrument          = models.CharField(max_length=30, choices=INSTRUMENTS)
     aperture            = models.CharField(max_length=3)
     binning             = models.IntegerField(default=2)
     information         = models.TextField(blank=True, null=True)
@@ -55,7 +60,7 @@ class Asteroid(models.Model):
     image               = models.FileField(upload_to='teaser')
     timelapse_url       = models.URLField(blank=True, null=True)
     num_observations    = models.IntegerField(default=0)
-    last_update         = models.DateTimeField(default=datetime.utcnow())
+    last_update         = models.DateTimeField(default=django.utils.timezone.now)
 
     def epochofel_mjd(self):
         mjd = None

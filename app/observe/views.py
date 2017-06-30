@@ -104,11 +104,13 @@ def send_request(asteroid, form):
     obs_params = format_request(asteroid)
     resp_status, resp_msg = submit_scheduler_api(obs_params)
     if resp_status:
+        reqids = [['id'] for _ in resp_msg['requests']]
         req_params = {
-            'track_num' : resp_msg,
+            'track_num' : resp_msg['id'],
             'status'    : 'P',
             'email'     : form['user_name'],
             'asteroid'  : asteroid,
+            'request_ids' : json.dumps(reqids)
         }
         r = Observation(**req_params)
         r.save()

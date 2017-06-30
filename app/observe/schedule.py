@@ -1,24 +1,32 @@
 import requests
 import logging
 import json
+from datetime import datetime
+
 from django.conf import settings
 
 from observe.models import Asteroid
 
 logger = logging.getLogger('asteroid')
 
+
 def submit_scheduler_api(params):
     '''
     Send the observation parameters and the authentication cookie to the Scheduler API
     '''
-    headers = get_headers(mode='O')
-    url = settings.SCHEDULE_API_URL
-    request_data = {'request_data':json.dumps(params),'proposal':settings.PROPOSAL_CODE}
-    r = requests.post(url, data=request_data, headers=headers)
-    if r.status_code == 200:
-        tracking_num = r.json()['id']
-        logger.debug('Request submitted - %s' % tracking_num)
-        return True, tracking_num
+    headers = {'Authorization': 'Token {}'.format(settings.PORTAL_TOKEN)}
+    url = settings.PORTAL_REQUEST_API
+    try:
+        r = requests.post(url, json=params, headers=headers, timeout=20.0)
+    except requests.exceptions.Timeout:
+        msg = "Observing portal API timed out"
+        logger.error(msg)
+        params['error_msg'] = msg
+        return False, msg
+
+    if r.status_code in [200,201]:
+        logger.debug('Submitted request {}'.format(r.json()))
+        return True, r.json()
     else:
         logger.error("Could not send request: {}".format(r.content))
         return False, r.content
@@ -28,34 +36,10 @@ def get_headers(mode='O'):
         token = settings.ARCHIVE_TOKEN
         headers = {'Authorization': 'Token {}'.format(token)}
     elif mode == 'O':
-        token = odin_headers()
-        headers = {'Authorization': 'Bearer {}'.format(token)}
+        token = settings.PORTAL_TOKEN
+        headers = {'Authorization': 'Token {}'.format(token)}
     return headers
 
-def odin_headers():
-        auth_data={
-            'grant_type': 'password',
-            'username': settings.PROPOSAL_USER,
-            'password': settings.PROPOSAL_PASSWD,
-            'client_id': settings.CLIENT_ID,
-            'client_secret': settings.CLIENT_SECRET
-        }
-        response = requests.post(settings.OBSERVE_TOKEN_URL, data= auth_data)
-        if response.status_code == 200:
-            return response.json()['access_token']
-        else:
-            return False
-
-def archive_headers(url):
-    auth_data = {'username':settings.PROPOSAL_USER, 'password':settings.PROPOSAL_PASSWD}
-    response = requests.post(settings.ARCHIVE_TOKEN_URL, data = auth_data)
-    if response.status_code == 200:
-        response = response.json()
-    else:
-        return False
-    token = response.get('token')
-    # Store the Authorization header
-    return True
 
 def format_request(asteroid):
 
@@ -71,7 +55,7 @@ def format_request(asteroid):
     'filter'          : asteroid.filter_name,  # The generic filter name
     'fill_window'     : False,
     'type'            : 'EXPOSE',
-    'ag_mode'         : 'Optional',
+    'ag_mode'         : 'OPTIONAL',
     'instrument_name' : asteroid.instrument,
     }
 
@@ -83,34 +67,35 @@ def format_request(asteroid):
         'orbinc'            : asteroid.orbinc,
         'argofperih'        : asteroid.argofperih,
         'longascnode'       : asteroid.longascnode,
-        'epochofel'         : asteroid.epochofel_mjd(),
+        'epochofel'         : asteroid.epochofel,
         'eccentricity'      : asteroid.eccentricity,
         'meananom'          : asteroid.meananom,
         'meandist'          : asteroid.meandist,
     }
 
+
     # this is the actual window
     window = {
-          'start' : str(asteroid.start),
+          'start' : str(datetime.utcnow()),
           'end' : str(asteroid.end)
     }
 
     request = {
-    "constraints" : {'max_airmass' : 2.0},
-    "location" : location,
-    "molecules" : [molecule],
-    "observation_note" : "",
-    "observation_type" : "NORMAL",
-    "target" : target,
-    "type" : "request",
-    "windows" : [window],
+        "constraints" : {'max_airmass' : 1.74},
+        "location" : location,
+        "molecules" : [molecule],
+        "observation_note" : "",
+        "target" : target,
+        "windows" : [window]
     }
 
     user_request = {
-    "operator" : "single",
-    "requests" : [request],
-    "type" : "compound_request",
-    "ipp_value" : 1.0,
-    # "group_id" : "Asteroid_Day_2016_%s" % asteroid.name
+        "submitter": settings.PROPOSAL_USER,
+        "requests": [request],
+        "group_id" : "ad2017_{}_{}".format(asteroid.text_name(), datetime.utcnow().strftime("%Y%m%d")),
+        "observation_type": "NORMAL",
+        "operator": "SINGLE",
+        "ipp_value": 1.0,
+        "proposal": settings.PROPOSAL_CODE
     }
     return user_request
