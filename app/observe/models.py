@@ -50,8 +50,8 @@ class Asteroid(models.Model):
     exposure            = models.IntegerField(default=0)
     filter_name         = models.CharField(max_length=10)
     exposure_count      = models.IntegerField(default=1)
-    start               = models.DateTimeField(default=django.utils.timezone.now)
-    end                 = models.DateTimeField(default=django.utils.timezone.now)
+    start               = models.DateTimeField(default=datetime.utcnow)
+    end                 = models.DateTimeField(default=datetime.utcnow)
     instrument          = models.CharField(max_length=30, choices=INSTRUMENTS)
     aperture            = models.CharField(max_length=3)
     binning             = models.IntegerField(default=2)
@@ -60,7 +60,7 @@ class Asteroid(models.Model):
     image               = models.FileField(upload_to='teaser')
     timelapse_url       = models.URLField(blank=True, null=True)
     num_observations    = models.IntegerField(default=0)
-    last_update         = models.DateTimeField(default=django.utils.timezone.now)
+    last_update         = models.DateTimeField(default=datetime.utcnow)
 
     def epochofel_mjd(self):
         mjd = None
