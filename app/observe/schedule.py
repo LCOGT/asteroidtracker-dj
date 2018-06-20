@@ -7,7 +7,7 @@ from django.conf import settings
 
 from observe.models import Asteroid
 
-logger = logging.getLogger('asteroid')
+logger = logging.getLogger(__name__)
 
 
 def submit_scheduler_api(params):
@@ -92,7 +92,7 @@ def format_request(asteroid):
     user_request = {
         "submitter": settings.PROPOSAL_USER,
         "requests": [request],
-        "group_id" : "ad2017_{}_{}".format(asteroid.text_name(), datetime.utcnow().strftime("%Y%m%d")),
+        "group_id" : "ad{}_{}_{}".format(datetime.utcnow().year, asteroid.text_name(), datetime.utcnow().strftime("%Y%m%d")),
         "observation_type": "NORMAL",
         "operator": "SINGLE",
         "ipp_value": 1.0,
