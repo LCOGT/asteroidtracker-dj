@@ -82,7 +82,8 @@ class Asteroid(models.Model):
         return mjd
 
     def text_name(self):
-        return self.name.replace(" ","_")
+        txt = self.name.replace(" ","_").replace("(","").replace(")","")
+        return txt
 
     def __unicode__(self):
         return self.name
