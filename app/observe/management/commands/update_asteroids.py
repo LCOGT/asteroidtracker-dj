@@ -17,4 +17,5 @@ class Command(BaseCommand):
             num_images = make_timelapse(ast)
             ast.num_observations = num_images
             ast.last_update = last_update
+            num_images = make_timelapse(ast, format='webm')
             ast.save()

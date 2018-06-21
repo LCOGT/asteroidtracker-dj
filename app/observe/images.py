@@ -123,13 +123,17 @@ def download_frames(asteroid_name, frames, download_dir):
 
     return True
 
-def make_timelapse(asteroid):
+def make_timelapse(asteroid, format="mp4"):
     logger.debug('Making timelapse for %s' % asteroid)
     path = "%s%s_*.jpg" % (settings.MEDIA_ROOT,asteroid.text_name())
     files = glob.glob(path)
     if len(files) > 0 and len(files) > asteroid.num_observations:
-        outfile = '%s%s.mp4' % (settings.MEDIA_ROOT, asteroid.text_name())
-        video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -pix_fmt yuv420p {} -y".format(path, outfile)
+        if format == 'mp4':
+            outfile = '%s%s.mp4' % (settings.MEDIA_ROOT, asteroid.text_name())
+            video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -pix_fmt yuv420p {} -y".format(path, outfile)
+        elif format == 'webm':
+            outfile = '%s%s.webm' % (settings.MEDIA_ROOT, asteroid.text_name())
+            video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libvpx {} -y".format(path, outfile)
         subprocess.call(video_options, shell=True)
     return len(files)
 
