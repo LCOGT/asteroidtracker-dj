@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.utils import timezone
 from datetime import datetime
 
 from astropy.time import Time
@@ -57,10 +58,10 @@ class Asteroid(models.Model):
     binning             = models.IntegerField(default=2)
     information         = models.TextField(blank=True, null=True)
     teaser              = models.CharField(max_length=120)
-    image               = models.FileField(upload_to='teaser')
+    image_url           = models.URLField(default="https://lco.global/files/astronomy/asteroid/unknown.jpg")
     timelapse_url       = models.URLField(blank=True, null=True)
     num_observations    = models.IntegerField(default=0)
-    last_update         = models.DateTimeField(default=datetime.utcnow)
+    last_update         = models.DateTimeField(default=timezone.now)
 
     def epochofel_mjd(self):
         mjd = None
@@ -90,7 +91,7 @@ class Asteroid(models.Model):
 class Observation(models.Model):
     track_num           = models.CharField(max_length=10)
     status              = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    last_update         = models.DateTimeField(default=datetime.utcnow())
+    last_update         = models.DateTimeField(default=timezone.now)
     email               = models.CharField(max_length=150, blank=True, null=True)
     asteroid            = models.ForeignKey(Asteroid)
     request_ids         = models.TextField(blank=True, null=True)

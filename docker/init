@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Generate cron wrapper to set correct environment variables
+cat > /var/www/apps/asteroidday/cronwrapper << EOF
+export PYTHONPATH="${PYTHONPATH}"
+export DJANGO_SETTINGS_MODULE="${DJANGO_SETTINGS_MODULE}"
+
+export DB_NAME="${DB_NAME}"
+export DB_HOST="${DB_HOST}"
+export DB_USER="${DB_USER}"
+export DB_PASSWD="${DB_PASSWD}"
+export PROPOSAL_USER="${PROPOSAL_USER}"
+export PROPOSAL_PASSWD="${PROPOSAL_PASSWD}"
+export PROPOSAL_CODE="${PROPOSAL_CODE}"
+export EMAIL_USERNAME="${EMAIL_USERNAME}"
+export EMAIL_PASSWORD="${EMAIL_PASSWORD}"
+export ARCHIVE_TOKEN="${ARCHIVE_TOKEN}"
+export PORTAL_TOKEN="${PORTAL_TOKEN}"
+
+EOF
+
+# Make cron wrapper executable
+chmod +x /var/www/apps/asteroidday/cronwrapper
+
+cd /var/www/apps/asteroidday/
+python manage.py migrate --no-input
+python manage.py collectstatic --no-input
+exec gunicorn -w 4 -k gevent -b 0.0.0.0:80 asteroidday.wsgi

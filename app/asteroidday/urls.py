@@ -31,7 +31,4 @@ urlpatterns = [
     url(r'^asteroid/(?P<pk>[0-9]+)/submit/$', AsteroidSchedule.as_view(), name='asteroid_schedule'),
     url(r'^observation/(?P<pk>[0-9]+)/$', ObservationView.as_view(), name='request_detail'),
     url(r'^admin/', admin.site.urls),
-]
-
-if not settings.PRODUCTION:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

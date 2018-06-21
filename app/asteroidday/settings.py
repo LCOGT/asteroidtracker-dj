@@ -1,6 +1,5 @@
 import os, sys
 from django.utils.crypto import get_random_string
-from urlparse import urljoin
 
 VERSION = '0.1'
 
@@ -23,10 +22,10 @@ SITE_ID = 1
 
 DATABASES = {
     'default': {
-        'NAME': os.environ.get('ASTEROIDDAY_DB_NAME', ''),
-        "USER": os.environ.get('ASTEROIDDAY_DB_USER', ''),
-        "PASSWORD": os.environ.get('ASTEROIDDAY_DB_PASSWD', ''),
-        "HOST": os.environ.get('ASTEROIDDAY_DB_HOST', ''),
+        'NAME': os.environ.get('DB_NAME', ''),
+        "USER": os.environ.get('DB_USER', ''),
+        "PASSWORD": os.environ.get('DB_PASSWD', ''),
+        "HOST": os.environ.get('DB_HOST', ''),
         "ENGINE": "django.db.backends.mysql",
         }
     }
@@ -35,8 +34,10 @@ DATABASES = {
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
-SECRET_KEY = get_random_string(50, chars)
+SECRET_KEY = os.environ.get('SECRET_KEY','')
+if not SECRET_KEY:
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+    SECRET_KEY = get_random_string(50, chars)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -60,6 +61,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -137,10 +139,6 @@ STATIC_ROOT = '/var/www/html/static/'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = '/var/www/html/media/'
-
-
 TOKEN_API = 'api-token-auth/'
 THUMBNAIL_URL = 'https://thumbnails.lco.global/'
 ARCHIVE_URL = 'https://archive-api.lco.global/'
@@ -162,8 +160,8 @@ FFMPEG = '/bin/ffmpeg'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS       = True
 EMAIL_HOST          = 'smtp.gmail.com'
-EMAIL_HOST_USER     = os.environ.get('ASTEROIDDAY_EMAIL_USERNAME','')
-EMAIL_HOST_PASSWORD = os.environ.get('ASTEROIDDAY_EMAIL_PASSWORD','')
+EMAIL_HOST_USER     = os.environ.get('EMAIL_USERNAME','')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD','')
 EMAIL_PORT          =  587
 DEFAULT_FROM_EMAIL  = 'Asteroid Tracker <streams@lco.global>'
 

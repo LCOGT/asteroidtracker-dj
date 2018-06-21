@@ -1,6 +1,0 @@
-Django>=1.10,<1.11
-mysqlclient
-requests
-astropy
-django-pagedown
-django-markdown-deux
