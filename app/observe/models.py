@@ -58,8 +58,8 @@ class Asteroid(models.Model):
     binning             = models.IntegerField(default=2)
     information         = models.TextField(blank=True, null=True)
     teaser              = models.CharField(max_length=120)
-    image_url           = models.URLField(default="https://lco.global/files/astronomy/asteroid/unknown.jpg")
-    timelapse_url       = models.URLField(blank=True, null=True)
+    image_url           = models.CharField(default="https://lco.global/files/astronomy/asteroid/unknown.jpg", max_length=200)
+    timelapse_url       = models.CharField(blank=True, null=True, max_length=200)
     num_observations    = models.IntegerField(default=0)
     last_update         = models.DateTimeField(default=timezone.now)
 

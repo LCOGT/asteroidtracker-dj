@@ -140,6 +140,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
 
 MEDIA_ROOT = '/var/www/html/timelapse/'
+MEDIA_URL = '/timelapse/'
 
 TOKEN_API = 'api-token-auth/'
 THUMBNAIL_URL = 'https://thumbnails.lco.global/'

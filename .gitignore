@@ -69,3 +69,4 @@ target/
 local_settings.py
 *.mp4
 app/observe/media/*
+docker-compose.yml
