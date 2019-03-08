@@ -68,5 +68,7 @@ target/
 # Local setup
 local_settings.py
 *.mp4
+*.json
 app/observe/media/*
 docker-compose.yml
+media
