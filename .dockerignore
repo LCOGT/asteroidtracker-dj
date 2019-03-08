@@ -1,4 +1,10 @@
 app/observe/media/*
+media
+LICENSE
+README.md
+Jenkinsfile
+docker-compose.yml
+*.json
 .git
 .svn
 *.pyc
