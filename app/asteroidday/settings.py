@@ -57,16 +57,15 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'observe.apps.ObserveConfig',
     'pagedown',
-    'markdown_deux',]
+    'markdown_deux',
+    'storages']
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -135,13 +134,6 @@ USE_L10N = True
 USE_TZ = False
 
 
-STATIC_ROOT = '/var/www/html/static/'
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
-
-MEDIA_ROOT = '/var/www/html/timelapse/'
-MEDIA_URL = '/timelapse/'
-
 TOKEN_API = 'api-token-auth/'
 THUMBNAIL_URL = 'https://thumbnails.lco.global/'
 ARCHIVE_URL = 'https://archive-api.lco.global/'
@@ -159,6 +151,30 @@ PROPOSAL_USER = os.environ.get('PROPOSAL_USER','')
 PROPOSAL_CODE = os.environ.get('PROPOSAL_CODE','')
 
 FFMPEG = '/bin/ffmpeg'
+
+STATIC_ROOT = '/var/www/html/static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
+
+# AWS settings
+USE_S3 = os.getenv('USE_S3', False)
+
+if USE_S3:
+    # aws settings
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    # s3 public media settings
+    PUBLIC_MEDIA_LOCATION = 'timelapse'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'asteroidday.storage_backends.PublicMediaStorage'
+else:
+    MEDIA_URL = '/timelapse/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'timelapse')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS       = True
@@ -213,7 +229,7 @@ LOGGING = {
 
 if not CURRENT_PATH.startswith('/var/www'):
     try:
-        from local_settings import *
+        from .local_settings import *
     except ImportError as e:
         if "local_settings" not in str(e):
             raise e

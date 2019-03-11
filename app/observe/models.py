@@ -58,8 +58,8 @@ class Asteroid(models.Model):
     binning             = models.IntegerField(default=2)
     information         = models.TextField(blank=True, null=True)
     teaser              = models.CharField(max_length=120)
-    image_url           = models.CharField(default="https://lco.global/files/astronomy/asteroid/unknown.jpg", max_length=200)
-    timelapse_url       = models.CharField(blank=True, null=True, max_length=200)
+    image               = models.FileField()
+    timelapse           = models.FileField(blank=True, null=True)
     num_observations    = models.IntegerField(default=0)
     last_update         = models.DateTimeField(default=timezone.now)
 
@@ -85,7 +85,7 @@ class Asteroid(models.Model):
         txt = self.name.replace(" ","_").replace("(","").replace(")","")
         return txt
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -94,9 +94,9 @@ class Observation(models.Model):
     status              = models.CharField(max_length=1, choices=STATUS_CHOICES)
     last_update         = models.DateTimeField(default=timezone.now)
     email               = models.CharField(max_length=150, blank=True, null=True)
-    asteroid            = models.ForeignKey(Asteroid)
+    asteroid            = models.ForeignKey(Asteroid, on_delete=models.CASCADE)
     request_ids         = models.TextField(blank=True, null=True)
     frame_ids           = models.TextField(blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s for %s is %s" % (self.track_num, self.email, self.status)
