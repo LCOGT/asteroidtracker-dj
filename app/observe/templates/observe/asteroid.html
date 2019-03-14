@@ -34,8 +34,8 @@
   <div class="col-md-10">
   {% if asteroid.num_observations > 0 %}
   <video width="100%" controls>
-     <source src="{{asteroid.timelapse_url}}" type="video/mp4" >
-  Your browser does not support the video tag. Try <a href="{{asteroid.timelapse_url}}">downloading</a> instead.
+     <source src="{{asteroid.timelapse.url}}" type="video/mp4" >
+  Your browser does not support the video tag. Try <a href="{{asteroid.timelapse.url}}">downloading</a> instead.
   </video>
   <p class="caption">Timelapse made from {{asteroid.num_observations}} images, last updated {{asteroid.last_update}}</p>
   {% else %}
