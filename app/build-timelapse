@@ -1,0 +1,18 @@
+#!/bin/sh
+
+echo "Running update_asteroids..."
+if ! python manage.py update_asteroids ; then
+	RET="$?"
+	echo "ERROR: update_asteroids failed with exit code: $RET"
+	exit $RET
+fi
+
+echo "Running update_requests..."
+if ! python manage.py update_requests ; then
+	RET="$?"
+	echo "ERROR: update_requests failed with exit code: $RET"
+	exit $RET
+fi
+
+# Success
+exit 0
