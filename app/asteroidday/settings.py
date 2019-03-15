@@ -1,6 +1,18 @@
 import os, sys
 from django.utils.crypto import get_random_string
 
+def str2bool(value):
+    '''Convert a string value to a boolean'''
+    value = value.lower()
+
+    if value in ('t', 'true', 'y', 'yes', '1', ):
+        return True
+
+    if value in ('f', 'false', 'n', 'no', '0', ):
+        return False
+
+    raise RuntimeError('Unable to parse {} as a boolean value'.format(value))
+
 VERSION = '0.1'
 
 TEST = 'test' in sys.argv
@@ -157,7 +169,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
 
 # AWS settings
-USE_S3 = os.getenv('USE_S3', False)
+USE_S3 = str2bool(os.getenv('USE_S3', 'False'))
 
 if USE_S3:
     # aws settings
