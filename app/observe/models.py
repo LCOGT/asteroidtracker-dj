@@ -61,7 +61,7 @@ class Asteroid(models.Model):
     image               = models.FileField()
     timelapse           = models.FileField(blank=True, null=True)
     num_observations    = models.IntegerField(default=0)
-    last_update         = models.DateTimeField(default=timezone.now)
+    last_update         = models.DateTimeField('last update of timelapse', default=timezone.now)
 
     def epochofel_mjd(self):
         mjd = None

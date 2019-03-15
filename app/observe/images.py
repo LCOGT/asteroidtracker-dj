@@ -1,13 +1,14 @@
-import requests
-import logging
-import json
-import os
-import subprocess
-import glob
 from datetime import datetime
 from django.conf import settings
-from django.template import loader, Context
 from django.core.mail import send_mass_mail
+from django.template import loader, Context
+import ffmpeg
+import glob
+import json
+import logging
+import os
+import requests
+import subprocess
 
 from observe.models import Asteroid
 from observe.schedule import get_headers
@@ -45,7 +46,7 @@ def find_frames_object(asteroid):
     frame_urls = []
     last_update = asteroid.last_update.strftime("%Y-%m-%d %H:%M")
     archive_headers = get_headers('A')
-    url = '{}frames/?RLEVEL=11&start={}&OBJECT={}'.format(settings.ARCHIVE_URL, last_update, asteroid.name)
+    url = '{}frames/?RLEVEL=91&start={}&OBJECT={}'.format(settings.ARCHIVE_URL, last_update, asteroid.name)
     response = requests.get(url, headers=archive_headers).json()
     frames = response['results']
     logger.debug("Found {} frames".format(len(frames)))
@@ -64,7 +65,7 @@ def find_frames_object(asteroid):
     logger.debug("Total frames=%s" % (len(frames)))
     return frame_urls, last_update
 
-def find_frames(user_reqs):
+def find_frames(user_reqs, last_update):
     '''
     user_reqs: Full User Request dict, or list of dictionaries, containing individual observation requests
     header: provide auth token from the request API so we don't need to get it twice
@@ -73,7 +74,8 @@ def find_frames(user_reqs):
     logger.debug("User request: %s" % user_reqs)
     headers = get_headers('A')
     for req in user_reqs:
-        url = '{}frames/?RLEVEL=11&REQNUM={}'.format(settings.ARCHIVE_URL, req)
+        url = '{}frames/?RLEVEL=91&REQNUM={}&start={}'.format(settings.ARCHIVE_URL, req, last_update.isoformat())
+        print(url)
         resp = requests.get(url, headers=headers).json()
         if resp.get('detail',''):
             logger.error(resp['detail'])
@@ -97,14 +99,11 @@ def get_thumbnails(frames):
     return frame_urls
 
 def download_frames(asteroid_name, frames, download_dir):
-    current_files = glob.glob(download_dir+"*.jpg")
     for frame in frames:
         frame_date = frame['date_obs'].strftime("%Y%m%d%H%M%S")
         file_name = '%s_%s.jpg' % (asteroid_name, frame_date)
         full_filename = os.path.join(download_dir, file_name)
-        if full_filename in current_files:
-            logger.debug("Frame {} already present".format(file_name))
-            continue
+
         with open(full_filename, "wb") as f:
             logger.debug("Downloading %s" % file_name)
             response = requests.get(frame['url'], stream=True)
@@ -123,19 +122,43 @@ def download_frames(asteroid_name, frames, download_dir):
 
     return True
 
-def make_timelapse(asteroid, format="mp4"):
-    logger.debug('Making timelapse for %s' % asteroid)
-    path = "%s%s_*.jpg" % (settings.MEDIA_ROOT,asteroid.text_name())
+def make_timelapse(asteroid, file_dir, format="mp4"):
+    logger.debug('Making {} timelapse for {}'.format(format, asteroid))
+    path = os.path.join(file_dir, "*.jpg")
     files = glob.glob(path)
-    if len(files) > 0 and len(files) > asteroid.num_observations:
+    asteroid.num_observations += len(files)
+    asteroid.save()
+    if files:
         if format == 'mp4':
-            outfile = '%s%s.mp4' % (settings.MEDIA_ROOT, asteroid.text_name())
-            video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -pix_fmt yuv420p {} -y".format(path, outfile)
+            outfile = '{}.mp4'.format(asteroid.name.replace(" ", "_"))
+            outfile = os.path.join(file_dir, outfile)
+            video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -f mp4 -pix_fmt yuv420p {} -y".format(path, outfile)
         elif format == 'webm':
-            outfile = '%s%s.webm' % (settings.MEDIA_ROOT, asteroid.text_name())
-            video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libvpx {} -y".format(path, outfile)
-        subprocess.call(video_options, shell=True)
-    return len(files)
+            outfile = '{}.webm'.format(asteroid.name.replace(" ", "_"))
+            outfile = os.path.join(file_dir, outfile)
+            video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libvpx-vp9 -f webm {} -y".format(path, outfile)
+
+        try:
+            output = subprocess.check_output(
+                video_options, stderr=subprocess.STDOUT, shell=True, timeout=30,
+                universal_newlines=True)
+        except subprocess.CalledProcessError as exc:
+            logger.error("Status : FAIL", exc.returncode, exc.output)
+        else:
+            logger.debug("Output: \n{}\n".format(output))
+            return outfile
+    return False
+
+# def combine_timelapses(path, outfile):
+#     video_options = "ffmpeg -f concat -safe 0 -i <(for f in {}; do echo "file '$PWD/$f'"; done) -c copy {}.mp4 -y".format(path, outfile)
+#     proc = subprocess.Popen(video_options)
+#     try:
+#         outs, errs = proc.communicate(timeout=60)
+#         return outfile
+#     except TimeoutExpired:
+#         proc.kill()
+#         outs, errs = proc.communicate()
+#     return
 
 def email_users(observation_list):
     email_list = []

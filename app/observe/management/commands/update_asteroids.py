@@ -2,6 +2,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 from datetime import datetime, timedelta
+import tempfile
+
 from observe.images import check_request_api, make_timelapse, find_frames_object, download_frames
 from observe.models import Asteroid
 
@@ -10,12 +12,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write("==== Updating Asteroids %s  ====" % (datetime.now().strftime('%Y-%m-%d %H:%M')))
+        tmp_dir = settings.MEDIA_ROOT
         for ast in Asteroid.objects.filter(active=True):
             num_images = 10
             frames, last_update = find_frames_object(ast)
-            confirm = download_frames(ast.text_name(), frames, download_dir=settings.MEDIA_ROOT)
-            num_images = make_timelapse(ast)
-            ast.num_observations = num_images
+            tmpdir = tempfile.mkdtemp()
+            confirm = download_frames(ast.text_name(), frames, download_dir=tmpdir)
+            outfile_mp4 = make_timelapse(ast, tmpdir)
             ast.last_update = last_update
-            num_images = make_timelapse(ast, format='webm')
+            outfile_webm = make_timelapse(ast, tmpdir, format='webm')
             ast.save()
