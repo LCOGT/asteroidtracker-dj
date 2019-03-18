@@ -46,7 +46,7 @@ def find_frames_object(asteroid):
     frame_urls = []
     last_update = asteroid.last_update.strftime("%Y-%m-%d %H:%M")
     archive_headers = get_headers('A')
-    url = '{}frames/?RLEVEL=91&start={}&OBJECT={}'.format(settings.ARCHIVE_URL, last_update, asteroid.name)
+    url = '{}frames/?RLEVEL=91&start={}&OBJECT={}&limit=5'.format(settings.ARCHIVE_URL, last_update, asteroid.name)
     response = requests.get(url, headers=archive_headers).json()
     frames = response['results']
     logger.debug("Found {} frames".format(len(frames)))
@@ -143,22 +143,24 @@ def make_timelapse(asteroid, file_dir, format="mp4"):
                 video_options, stderr=subprocess.STDOUT, shell=True, timeout=30,
                 universal_newlines=True)
         except subprocess.CalledProcessError as exc:
-            logger.error("Status : FAIL", exc.returncode, exc.output)
+            logger.error("FAILED {}".format(exc.output))
         else:
-            logger.debug("Output: \n{}\n".format(output))
+            logger.debug("Successfully created {}".format(outfile))
             return outfile
     return False
 
-# def combine_timelapses(path, outfile):
-#     video_options = "ffmpeg -f concat -safe 0 -i <(for f in {}; do echo "file '$PWD/$f'"; done) -c copy {}.mp4 -y".format(path, outfile)
-#     proc = subprocess.Popen(video_options)
-#     try:
-#         outs, errs = proc.communicate(timeout=60)
-#         return outfile
-#     except TimeoutExpired:
-#         proc.kill()
-#         outs, errs = proc.communicate()
-#     return
+def combine_timelapses(path, outfile):
+    video_options = "ffmpeg -f concat -safe 0 -i <(for f in {}; do echo \"file '$PWD/$f'\"; done) -c copy {}.mp4 -y".format(path, outfile)
+    try:
+        output = subprocess.check_output(
+            video_options, stderr=subprocess.STDOUT, shell=True, timeout=30,
+            universal_newlines=True)
+    except subprocess.CalledProcessError as exc:
+        logger.error("FAILED {}".format(exc.output))
+    else:
+        logger.debug("Successfully combined timelapses {}".format(outfile))
+        return outfile
+    return
 
 def email_users(observation_list):
     email_list = []

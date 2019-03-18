@@ -14,7 +14,7 @@ class Command(BaseCommand):
         self.stdout.write("==== Updating Asteroids %s  ====" % (datetime.now().strftime('%Y-%m-%d %H:%M')))
         tmp_dir = settings.MEDIA_ROOT
         for ast in Asteroid.objects.filter(active=True):
-            num_images = 10
+            num_images = 5
             frames, last_update = find_frames_object(ast)
             tmpdir = tempfile.mkdtemp()
             confirm = download_frames(ast.text_name(), frames, download_dir=tmpdir)

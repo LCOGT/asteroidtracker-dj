@@ -13,8 +13,12 @@
 
   {% if observation.asteroid.num_observations > 0 %}
   <video width="100%" controls>
-     <source src="{{observation.asteroid.timelapse.url}}" type="video/mp4" >
-  Your browser does not support the video tag. Try <a href="observation.asteroid.timelapse.url">downloading</a> instead.
+      <source src="{{observation.asteroid.timelapse_mpeg.url}}" type="video/mp4" >
+     {% if observation.asteroid.timelapse_webm %}
+      <source src="{{observation.asteroid.timelapse_webm.url}}" type="video/webm" >
+     {% endif %}
+    Your browser does not support the video tag. Try <a href="{{observation.asteroid.timelapse_mpeg.url}}">downloading</a> instead.
+
   </video>
   <p class="caption">Timelapse of observations requested by citizen scientists. Made from {{observation.asteroid.num_observations}} images, last updated {{observation.asteroid.last_update}}</p>
   {% else %}

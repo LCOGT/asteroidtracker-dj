@@ -59,7 +59,8 @@ class Asteroid(models.Model):
     information         = models.TextField(blank=True, null=True)
     teaser              = models.CharField(max_length=120)
     image               = models.FileField()
-    timelapse           = models.FileField(blank=True, null=True)
+    timelapse_mpeg      = models.FileField(blank=True, null=True)
+    timelapse_webm      = models.FileField(blank=True, null=True)
     num_observations    = models.IntegerField(default=0)
     last_update         = models.DateTimeField('last update of timelapse', default=timezone.now)
 
