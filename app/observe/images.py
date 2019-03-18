@@ -172,6 +172,11 @@ def email_users(observation_list):
 
         email_params = ('Asteroid Tracker: Update on your asteroid', text_body, settings.DEFAULT_FROM_EMAIL, [observation.email])
         email_list.append(email_params)
+
+    if not settings.EMAIL_ENABLED:
+        logger.debug('Email is disabled, skip sending {} email notifications'.format(len(observation_list)))
+        return
+
     send_mass_mail(tuple(email_list))
     logger.debug('Emailed {} people'.format(len(observation_list)))
     return

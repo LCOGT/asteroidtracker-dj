@@ -188,13 +188,15 @@ else:
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'timelapse')
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS       = True
-EMAIL_HOST          = 'smtp.gmail.com'
-EMAIL_HOST_USER     = os.environ.get('EMAIL_USERNAME','')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD','')
-EMAIL_PORT          =  587
-DEFAULT_FROM_EMAIL  = 'Asteroid Tracker <streams@lco.global>'
+EMAIL_ENABLED = str2bool(os.environ.get('EMAIL_ENABLED', 'False'))
+if EMAIL_ENABLED:
+    EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS       = True
+    EMAIL_HOST          = 'smtp.gmail.com'
+    EMAIL_HOST_USER     = os.environ.get('EMAIL_USERNAME','')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD','')
+    EMAIL_PORT          =  587
+    DEFAULT_FROM_EMAIL  = 'Asteroid Tracker <streams@lco.global>'
 
 LOGGING = {
     'version': 1,
