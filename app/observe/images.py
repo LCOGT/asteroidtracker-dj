@@ -1,14 +1,17 @@
 from datetime import datetime
 from django.conf import settings
+from django.core.files import File
+from django.core.files.storage import default_storage
 from django.core.mail import send_mass_mail
 from django.template import loader, Context
-import ffmpeg
 import glob
 import json
 import logging
 import os
 import requests
 import subprocess
+import boto3
+import botocore
 
 from observe.models import Asteroid
 from observe.schedule import get_headers
@@ -46,7 +49,7 @@ def find_frames_object(asteroid):
     frame_urls = []
     last_update = asteroid.last_update.strftime("%Y-%m-%d %H:%M")
     archive_headers = get_headers('A')
-    url = '{}frames/?RLEVEL=91&start={}&OBJECT={}&limit=5'.format(settings.ARCHIVE_URL, last_update, asteroid.name)
+    url = '{}frames/?RLEVEL=91&start={}&OBJECT={}'.format(settings.ARCHIVE_URL, last_update, asteroid.name)
     response = requests.get(url, headers=archive_headers).json()
     frames = response['results']
     logger.debug("Found {} frames".format(len(frames)))
@@ -130,18 +133,16 @@ def make_timelapse(asteroid, file_dir, format="mp4"):
     asteroid.save()
     if files:
         if format == 'mp4':
-            outfile = '{}.mp4'.format(asteroid.name.replace(" ", "_"))
+            outfile = '{}.mp4'.format(asteroid.name.replace(" ", ""))
             outfile = os.path.join(file_dir, outfile)
             video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -f mp4 -pix_fmt yuv420p {} -y".format(path, outfile)
         elif format == 'webm':
-            outfile = '{}.webm'.format(asteroid.name.replace(" ", "_"))
+            outfile = '{}.webm'.format(asteroid.name.replace(" ", ""))
             outfile = os.path.join(file_dir, outfile)
             video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libvpx-vp9 -f webm {} -y".format(path, outfile)
 
         try:
-            output = subprocess.check_output(
-                video_options, stderr=subprocess.STDOUT, shell=True, timeout=30,
-                universal_newlines=True)
+            output = subprocess.check_output(video_options, stderr=subprocess.STDOUT, shell=True, timeout=30, universal_newlines=True)
         except subprocess.CalledProcessError as exc:
             logger.error("FAILED {}".format(exc.output))
         else:
@@ -149,8 +150,12 @@ def make_timelapse(asteroid, file_dir, format="mp4"):
             return outfile
     return False
 
-def combine_timelapses(path, outfile):
-    video_options = "ffmpeg -f concat -safe 0 -i <(for f in {}; do echo \"file '$PWD/$f'\"; done) -c copy {}.mp4 -y".format(path, outfile)
+def combine_timelapses(path, outfile, format):
+    path_exp = os.path.join(path,"*.{}".format(format))
+    files = glob.glob(path_exp)
+    files.sort() #need the 0_oldtimelapse file at the start
+    concat_str = "concat:{}".format("|".join(files))
+    video_options = "ffmpeg -i \"{}\" -safe 0 -c copy {} -y".format(concat_str, outfile)
     try:
         output = subprocess.check_output(
             video_options, stderr=subprocess.STDOUT, shell=True, timeout=30,
@@ -160,6 +165,43 @@ def combine_timelapses(path, outfile):
     else:
         logger.debug("Successfully combined timelapses {}".format(outfile))
         return outfile
+    return
+
+def download_timelapse(filename, download_dir, format):
+    f = default_storage.open(filename.name,'r')
+    with open(os.path.join(download_dir, '0_oldtimelapse.{}'.format(format)), 'wb+') as new_file:
+        new_file.write(f.read())
+    f.close()
+
+    return True
+
+def timelapse_overseer(ast_id, dir):
+    '''
+    Function to find and download image files, then create new timelapse and append
+    to old timelapse
+
+    ast_id: int
+        PK of asteroid object
+    dir: str
+        Directory to download all files into
+    '''
+    asteroid = Asteroid.objects.get(pk=ast_id)
+    frames, last_update = find_frames_object(asteroid)
+    confirm = download_frames(asteroid.text_name(), frames, download_dir=dir)
+    for format in (('mp4','timelapse_mpeg'), ('webm','timelapse_webm')):
+        outfile = make_timelapse(asteroid, dir, format=format[0])
+        if outfile:
+            if getattr(asteroid,format[1]):
+                oldtimelapse = download_timelapse(filename=getattr(asteroid,format[1]), download_dir=dir, format=format[0])
+                outfile = combine_timelapses(dir, outfile, format[0])
+            outfile_name = os.path.basename(outfile)
+            with open(outfile, 'rb') as f:
+                if format[0] == 'mp4':
+                    asteroid.timelapse_mpeg.save(outfile_name, File(f), save=True)
+                if format[0] == 'webm':
+                    asteroid.timelapse_webm.save(outfile_name, File(f), save=True)
+            asteroid.last_update = last_update
+    asteroid.save()
     return
 
 def email_users(observation_list):
