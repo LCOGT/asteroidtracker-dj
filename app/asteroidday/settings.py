@@ -168,25 +168,25 @@ STATIC_ROOT = '/var/www/html/static/'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
 
-# AWS settings
-USE_S3 = str2bool(os.getenv('USE_S3', 'False'))
+MEDIA_ROOT = os.path.join(BASE_DIR, 'timelapse')
+MEDIA_URL = '/timelapse/'
 
-if USE_S3:
+if str2bool(os.getenv('USE_S3', 'False')):
     # aws settings
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = os.getenv('AWS_DEFAULT_REGION', 'us-west-2')
     AWS_DEFAULT_ACL = 'public-read'
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
     # s3 public media settings
     PUBLIC_MEDIA_LOCATION = 'timelapse'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    MEDIA_URL = f'https://s3-{AWS_S3_REGION_NAME}.amazonaws.com/{AWS_STORAGE_BUCKET_NAME}/{PUBLIC_MEDIA_LOCATION}/'
     DEFAULT_FILE_STORAGE = 'asteroidday.storage_backends.PublicMediaStorage'
-else:
-    MEDIA_URL = '/timelapse/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'timelapse')
+    # s3 public static files storage settings
+    PUBLIC_STATIC_LOCATION = 'static'
+    STATIC_URL = f'https://s3-{AWS_S3_REGION_NAME}.amazonaws.com/{AWS_STORAGE_BUCKET_NAME}/{PUBLIC_STATIC_LOCATION}/'
+    STATICFILES_STORAGE = 'asteroidday.storage_backends.StaticStorage'
 
 EMAIL_ENABLED = str2bool(os.environ.get('EMAIL_ENABLED', 'False'))
 if EMAIL_ENABLED:
