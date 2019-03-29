@@ -125,19 +125,17 @@ def download_frames(asteroid_name, frames, download_dir):
 
     return True
 
-def make_timelapse(asteroid, file_dir, format="mp4"):
-    logger.debug('Making {} timelapse for {}'.format(format, asteroid))
+def make_timelapse(target, file_dir, format="mp4"):
+    logger.debug('Making {} timelapse for {}'.format(format, target))
     path = os.path.join(file_dir, "*.jpg")
     files = glob.glob(path)
-    asteroid.num_observations += len(files)
-    asteroid.save()
     if files:
         if format == 'mp4':
-            outfile = '{}.mp4'.format(asteroid.name.replace(" ", ""))
+            outfile = '{}.mp4'.format(target.replace(" ", ""))
             outfile = os.path.join(file_dir, outfile)
             video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -f mp4 -pix_fmt yuv420p {} -y".format(path, outfile)
         elif format == 'webm':
-            outfile = '{}.webm'.format(asteroid.name.replace(" ", ""))
+            outfile = '{}.webm'.format(target.replace(" ", ""))
             outfile = os.path.join(file_dir, outfile)
             video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libvpx-vp9 -f webm {} -y".format(path, outfile)
 
@@ -181,7 +179,7 @@ def timelapse_overseer(ast_id, dir):
     to old timelapse
 
     ast_id: int
-        PK of asteroid object
+        PK of target object
     dir: str
         Directory to download all files into
     '''
@@ -189,7 +187,7 @@ def timelapse_overseer(ast_id, dir):
     frames, last_update = find_frames_object(asteroid)
     confirm = download_frames(asteroid.text_name(), frames, download_dir=dir)
     for format in (('mp4','timelapse_mpeg'), ('webm','timelapse_webm')):
-        outfile = make_timelapse(asteroid, dir, format=format[0])
+        outfile = make_timelapse(asteroid.name, dir, format=format[0])
         if outfile:
             if getattr(asteroid,format[1]):
                 oldtimelapse = download_timelapse(filename=getattr(asteroid,format[1]), download_dir=dir, format=format[0])
@@ -201,6 +199,8 @@ def timelapse_overseer(ast_id, dir):
                 if format[0] == 'webm':
                     asteroid.timelapse_webm.save(outfile_name, File(f), save=True)
             asteroid.last_update = last_update
+            asteroid.num_observations += len(glob.glob(dir+'*.jpg'))
+            asteroid.save()
     asteroid.save()
     return
 
