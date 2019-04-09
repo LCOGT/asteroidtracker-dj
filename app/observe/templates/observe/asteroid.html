@@ -33,6 +33,7 @@
   </div>
   <div class="col-md-10">
   {% if asteroid.num_observations > 0 %}
+  {% if asteroid.timelapse_mpeg %}
   <video width="100%" controls>
      <source src="{{asteroid.timelapse_mpeg.url}}" type="video/mp4" >
     {% if asteroid.timelapse_webm %}
@@ -40,6 +41,9 @@
     {% endif %}
   Your browser does not support the video tag. Try <a href="{{asteroid.timelapse_mpeg.url}}">downloading</a> instead.
   </video>
+  {% else %}
+  <p>No timelapse is available.</p>
+  {% endif %}
   <p class="caption">Timelapse made from {{asteroid.num_observations}} images, last updated {{asteroid.last_update}}</p>
   {% else %}
   <p class="lead">
