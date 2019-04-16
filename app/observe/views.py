@@ -84,12 +84,13 @@ def update_status(req):
             return False
         logger.debug(status['requests'][0]['windows'][0]['end'])
         req.status = state_options.get(status['state'],'U')
-        request_ids = [r['request_number'] for r in status['requests']]
+        request_ids = [r['id'] for r in status['requests']]
         req.request_ids = json.dumps(request_ids)
         req.save()
     if not req.frame_ids:
         logger.debug("Finding frame IDs for {}".format(req))
-        frames = find_frames(json.loads(req.request_ids))
+        if req.request_ids:
+            frames = find_frames(json.loads(req.request_ids), last_update=req.asteroid.last_update)
         req.frame_ids = json.dumps(frames)
         logger.debug(frames)
         if len(frames) == req.asteroid.exposure_count:

@@ -24,7 +24,7 @@ def check_request_api(tracking_num):
     '''
     # Make an authenticated request with our headers
     headers = get_headers('O')
-    url = '{}user_requests/{}/'.format(settings.OBSERVE_URL,tracking_num)
+    url = '{}{}/'.format(settings.PORTAL_REQUEST_API,tracking_num)
     response = requests.get(url, headers=headers)
     frames = []
     if response.status_code == 200:
@@ -77,8 +77,7 @@ def find_frames(user_reqs, last_update):
     logger.debug("User request: %s" % user_reqs)
     headers = get_headers('A')
     for req in user_reqs:
-        url = '{}frames/?RLEVEL=91&REQNUM={}&start={}'.format(settings.ARCHIVE_URL, req, last_update.isoformat())
-        print(url)
+        url = '{}frames/?RLEVEL=91&REQNUM={}&start={}'.format(settings.ARCHIVE_URL, req, last_update.strftime("%Y-%m-%d"))
         resp = requests.get(url, headers=headers).json()
         if resp.get('detail',''):
             logger.error(resp['detail'])
