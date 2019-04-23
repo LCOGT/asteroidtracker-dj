@@ -16,3 +16,5 @@ Please see the [Jenkinsfile](Jenkinsfile) for more details.
 This project is deployed on the LCO Kubernetes Cluster. Please refer to the
 [LCO Helm Charts Repository](https://github.com/LCOGT/helm-charts) for further
 details.
+
+Only deploy tagged releases.
