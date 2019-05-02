@@ -51,6 +51,8 @@ def find_frames_object(asteroid):
     archive_headers = get_headers('A')
     url = '{}frames/?RLEVEL=91&start={}&OBJECT={}'.format(settings.ARCHIVE_URL, last_update, asteroid.name)
     response = requests.get(url, headers=archive_headers).json()
+    if response.status_code != 200:
+        logger.debug("Error finding frames {}: {}".format(response.status_code, response.content))
     frames = response['results']
     logger.debug("Found {} frames".format(len(frames)))
     if not response:
