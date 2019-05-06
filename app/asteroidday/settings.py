@@ -1,17 +1,8 @@
-import os, sys
 from django.utils.crypto import get_random_string
 
-def str2bool(value):
-    '''Convert a string value to a boolean'''
-    value = value.lower()
-
-    if value in ('t', 'true', 'y', 'yes', '1', ):
-        return True
-
-    if value in ('f', 'false', 'n', 'no', '0', ):
-        return False
-
-    raise RuntimeError('Unable to parse {} as a boolean value'.format(value))
+import ast
+import sys
+import os
 
 VERSION = '0.1'
 
@@ -24,10 +15,7 @@ ADMINS = (
 
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 
-PRODUCTION = True if CURRENT_PATH.startswith('/var/www') else False
-DEBUG = False
-
-HOME = os.environ.get('HOME','/tmp')
+HOME = os.environ.get('HOME', '/tmp')
 
 MANAGERS = ADMINS
 SITE_ID = 1
@@ -36,7 +24,7 @@ DATABASES = {
     'default': {
         'NAME': os.environ.get('DB_NAME', ''),
         "USER": os.environ.get('DB_USER', ''),
-        "PASSWORD": os.environ.get('DB_PASSWD', ''),
+        "PASSWORD": os.environ.get('DB_PASS', ''),
         "HOST": os.environ.get('DB_HOST', ''),
         "ENGINE": "django.db.backends.mysql",
         }
@@ -45,14 +33,14 @@ DATABASES = {
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
+# Django secret key: keep this secret!
 SECRET_KEY = os.environ.get('SECRET_KEY','')
 if not SECRET_KEY:
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
     SECRET_KEY = get_random_string(50, chars)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = ast.literal_eval(os.environ.get('DEBUG', 'False'))
 
 ALLOWED_HOSTS = ['*']
 
@@ -165,14 +153,16 @@ PROPOSAL_CODE = os.environ.get('PROPOSAL_CODE','')
 
 FFMPEG = '/bin/ffmpeg'
 
-STATIC_ROOT = '/var/www/html/static/'
+STATIC_ROOT = '/static/'
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR,'observe','static'),]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'observe', 'static'),
+]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'timelapse')
 MEDIA_URL = '/timelapse/'
 
-if str2bool(os.getenv('USE_S3', 'False')):
+if ast.literal_eval(os.getenv('USE_S3', 'False')):
     # aws settings
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
@@ -184,12 +174,8 @@ if str2bool(os.getenv('USE_S3', 'False')):
     PUBLIC_MEDIA_LOCATION = 'timelapse'
     MEDIA_URL = f'https://s3-{AWS_S3_REGION_NAME}.amazonaws.com/{AWS_STORAGE_BUCKET_NAME}/{PUBLIC_MEDIA_LOCATION}/'
     DEFAULT_FILE_STORAGE = 'asteroidday.storage_backends.PublicMediaStorage'
-    # s3 public static files storage settings
-    PUBLIC_STATIC_LOCATION = 'static'
-    STATIC_URL = f'https://s3-{AWS_S3_REGION_NAME}.amazonaws.com/{AWS_STORAGE_BUCKET_NAME}/{PUBLIC_STATIC_LOCATION}/'
-    STATICFILES_STORAGE = 'asteroidday.storage_backends.StaticStorage'
 
-EMAIL_ENABLED = str2bool(os.environ.get('EMAIL_ENABLED', 'False'))
+EMAIL_ENABLED = ast.literal_eval(os.environ.get('EMAIL_ENABLED', 'False'))
 if EMAIL_ENABLED:
     EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_USE_TLS       = True
@@ -242,7 +228,7 @@ LOGGING = {
     }
 }
 
-if not CURRENT_PATH.startswith('/var/www'):
+if not CURRENT_PATH.startswith('/app'):
     try:
         from .local_settings import *
     except ImportError as e:

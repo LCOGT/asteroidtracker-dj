@@ -1,12 +1,7 @@
 from storages.backends.s3boto3 import S3Boto3Storage
 from django.conf import settings
 
-
-class StaticStorage(S3Boto3Storage):
-    location = 'static'
-    default_acl = None
-
-
+# Media files are not public. Only authorized users should have access.
 class PublicMediaStorage(S3Boto3Storage):
     location = 'timelapse'
     default_acl = None

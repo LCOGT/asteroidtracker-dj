@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED 1
 ENV C_FORCE_ROOT true
 
 # set working directory
-WORKDIR /var/www/apps/asteroidday
+WORKDIR /app
 
 # install depedencies
 COPY requirements.txt .
