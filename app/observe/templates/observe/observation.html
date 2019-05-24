@@ -11,7 +11,7 @@
   <div class="col-md-6">
     <h1>{{observation.asteroid.name}}</h1>
 
-  {% if observation.asteroid.num_observations > 0 %}
+  {% if observation.asteroid.num_observations > 0 and observation.asteroid.timelapse_mpeg %}
   <video width="100%" controls>
       <source src="{{observation.asteroid.timelapse_mpeg.url}}" type="video/mp4" >
      {% if observation.asteroid.timelapse_webm %}

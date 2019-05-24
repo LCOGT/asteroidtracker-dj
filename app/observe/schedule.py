@@ -1,7 +1,7 @@
 import requests
 import logging
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.conf import settings
 
@@ -40,6 +40,18 @@ def get_headers(mode='O'):
         headers = {'Authorization': 'Token {}'.format(token)}
     return headers
 
+def calc_end_date(start, semester, interval):
+    # We want to avoid semester boundaries but still give enough time to get DATABASES
+    obs_window = timedelta(days=interval)
+    end = start + obs_window
+    if end > semester:
+        end = semester - timedelta(seconds=1)
+    if end - start < timedelta(days=3):
+        # if obs window is < 3 days it won't happen, bump to next semester
+        start = semester
+        end = start + obs_window
+    return start, end
+
 
 def format_request(asteroid):
 
@@ -75,9 +87,10 @@ def format_request(asteroid):
 
 
     # this is the actual window
+    startdate, enddate = calc_end_date(datetime.utcnow(), asteroid.semester_end, asteroid.observe_interval)
     window = {
-          'start' : str(datetime.utcnow()),
-          'end' : str(asteroid.end)
+          'start' : str(startdate),
+          'end' : str(enddate)
     }
 
     request = {

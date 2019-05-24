@@ -53,6 +53,7 @@ class Asteroid(models.Model):
     exposure_count      = models.IntegerField(default=1)
     start               = models.DateTimeField(default=datetime.utcnow)
     end                 = models.DateTimeField(default=datetime.utcnow)
+    semester_end        = models.DateTimeField(blank=True, null=True)
     instrument          = models.CharField(max_length=30, choices=INSTRUMENTS)
     aperture            = models.CharField(max_length=3)
     binning             = models.IntegerField(default=2)
@@ -63,6 +64,7 @@ class Asteroid(models.Model):
     timelapse_webm      = models.FileField(blank=True, null=True)
     num_observations    = models.IntegerField(default=0)
     last_update         = models.DateTimeField('last update of timelapse', default=timezone.now)
+    observe_interval    = models.IntegerField(default=14)
 
     def epochofel_mjd(self):
         mjd = None
