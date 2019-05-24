@@ -6,6 +6,8 @@ make requests to observe designated asteroids.
 
 This project was originally created for [Asteroid Day 2016](http://asteroidday.org).
 
+The app is visible at [Asteroid Tracker](https://asteroidtracker.lco.global/).
+
 ## Build
 
 This project is built automatically by the [LCO Jenkins Server](http://jenkins.lco.gtn/).
