@@ -50,14 +50,16 @@ def find_frames_object(asteroid):
     last_update = asteroid.last_update.strftime("%Y-%m-%d %H:%M")
     archive_headers = get_headers('A')
     url = '{}frames/?RLEVEL=91&start={}&OBJECT={}'.format(settings.ARCHIVE_URL, last_update, asteroid.name)
-    response = requests.get(url, headers=archive_headers).json()
-    if response.status_code != 200:
-        logger.debug("Error finding frames {}: {}".format(response.status_code, response.content))
+    resp = requests.get(url, headers=archive_headers)
+    if resp.status_code != 200:
+        logger.debug("Error finding frames {}: {}".format(resp.status_code, resp.content))
+        return None, None
+    response = resp.json()
     frames = response['results']
     logger.debug("Found {} frames".format(len(frames)))
     if not response:
         # No frames for this object since last update
-        return None
+        return None, None
     for frame in frames:
         logger.debug("Looking for frame {}".format(frame['id']))
         last_update, date_obs = set_update_time(frame['DATE_OBS'], asteroid.last_update)
@@ -132,11 +134,11 @@ def make_timelapse(target, file_dir, format="mp4"):
     files = glob.glob(path)
     if files:
         if format == 'mp4':
-            outfile = '{}.mp4'.format(target.replace(" ", ""))
+            outfile = '{}.mp4'.format(target.replace(" ", "").replace("(", "").replace(")", ""))
             outfile = os.path.join(file_dir, outfile)
             video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -f mp4 -pix_fmt yuv420p {} -y".format(path, outfile)
         elif format == 'webm':
-            outfile = '{}.webm'.format(target.replace(" ", ""))
+            outfile = '{}.webm'.format(target.replace(" ", "").replace("(", "").replace(")", ""))
             outfile = os.path.join(file_dir, outfile)
             video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libvpx-vp9 -f webm {} -y".format(path, outfile)
 
