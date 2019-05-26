@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.files import File
 from django.core.files.storage import default_storage
 from django.core.mail import send_mass_mail
-from django.template import loader, Context
+from django.template import loader
 import glob
 import json
 import logging
@@ -211,9 +211,8 @@ def email_users(observation_list):
     email_list = []
     for observation in observation_list:
         data = {'observation':observation }
-        c = Context(data)
         t = loader.get_template('observe/notify_email.txt')
-        text_body = t.render(c)
+        text_body = t.render(data)
 
         email_params = ('Asteroid Tracker: Update on your asteroid', text_body, settings.DEFAULT_FROM_EMAIL, [observation.email])
         email_list.append(email_params)
