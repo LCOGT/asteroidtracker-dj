@@ -20,3 +20,7 @@ This project is deployed on the LCO Kubernetes Cluster. Please refer to the
 details.
 
 Only deploy tagged releases.
+
+## Versions 1.8
+- Extra compatibility with Django 2.1
+- Check JSON in request status
