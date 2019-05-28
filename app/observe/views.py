@@ -53,6 +53,7 @@ class AsteroidView(DetailView):
     template_name = 'observe/asteroid.html'
 
 class AsteroidSchedule(FormView):
+    template_name = 'observe/asteroid.html'
     success_url = reverse_lazy('home')
     form_class = EmailForm
 
