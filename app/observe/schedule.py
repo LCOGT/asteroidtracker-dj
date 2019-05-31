@@ -41,7 +41,9 @@ def get_headers(mode='O'):
     return headers
 
 def calc_end_date(start, semester, interval):
-    # We want to avoid semester boundaries but still give enough time to get DATABASES
+    # We want to avoid semester boundaries but still give enough time to get obs
+    if datetime.utcnow() > start:
+        start = datetime.utcnow()
     obs_window = timedelta(days=interval)
     end = start + obs_window
     if end > semester:
@@ -87,7 +89,7 @@ def format_request(asteroid):
 
 
     # this is the actual window
-    startdate, enddate = calc_end_date(datetime.utcnow(), asteroid.semester_end, asteroid.observe_interval)
+    startdate, enddate = calc_end_date(asteroid.start, asteroid.semester_end, asteroid.observe_interval)
     window = {
           'start' : str(startdate),
           'end' : str(enddate)

@@ -78,27 +78,27 @@ class AsteroidSchedule(FormView):
 
 
 def update_status(req):
+    status = check_request_api(req.track_num)
+    if not status:
+        return False
+    logger.debug(status['requests'][0]['windows'][0]['end'])
+    req.status = state_options.get(status['state'],'U')
     if not req.request_ids:
         logger.debug("Finding request IDs for {}".format(req))
-        status = check_request_api(req.track_num)
-        if not status:
-            return False
-        logger.debug(status['requests'][0]['windows'][0]['end'])
-        req.status = state_options.get(status['state'],'U')
         request_ids = [r['id'] for r in status['requests']]
         req.request_ids = json.dumps(request_ids)
-        req.save()
+    req.save()
     if not req.frame_ids:
         logger.debug("Finding frame IDs for {}".format(req))
         if req.request_ids:
-            frames = find_frames(json.loads(req.request_ids), last_update=req.asteroid.last_update)
-        req.frame_ids = json.dumps(frames)
-        logger.debug(frames)
-        if len(frames) == req.asteroid.exposure_count:
-            req.status = 'C'
-            req.update = datetime.utcnow()
-            req.save()
-            return True
+            frames = find_frames(json.loads(str(req.request_ids)), last_update=req.asteroid.last_update)
+            req.frame_ids = json.dumps(frames)
+            logger.debug(frames)
+            if len(frames) == req.asteroid.exposure_count:
+                req.status = 'C'
+                req.update = datetime.utcnow()
+                req.save()
+                return True
     return False
 
 def send_request(asteroid, form):
