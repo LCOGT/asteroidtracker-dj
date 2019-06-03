@@ -21,6 +21,9 @@ details.
 
 Only deploy tagged releases.
 
+## Version 1.9
+- Combine old and new timelapses and upload the combined version
+
 ## Versions 1.8
 - Extra compatibility with Django 2.1
 - Check JSON in request status
