@@ -218,7 +218,11 @@ def email_users(observation_list):
         t = loader.get_template('observe/notify_email.txt')
         text_body = t.render(data)
 
-        email_params = ('Asteroid Tracker: Update on your asteroid', text_body, settings.DEFAULT_FROM_EMAIL, [observation.email])
+        if settings.DEBUG:
+            emailaddress = settings.TEST_EMAIL
+        else:
+            emailaddress = observation.email
+        email_params = ('Asteroid Tracker: Update on your asteroid', text_body, settings.DEFAULT_FROM_EMAIL, [emailaddress])
         email_list.append(email_params)
 
     if not settings.EMAIL_ENABLED:

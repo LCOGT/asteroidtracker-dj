@@ -186,7 +186,7 @@ if EMAIL_ENABLED:
     EMAIL_HOST_USER     = os.environ.get('EMAIL_USERNAME','')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD','')
     EMAIL_PORT          =  587
-    DEFAULT_FROM_EMAIL  = 'Asteroid Tracker <streams@lco.global>'
+    DEFAULT_FROM_EMAIL  = 'Asteroid Tracker <portal@lco.global>'
 
 LOGGING = {
     'version': 1,

@@ -80,6 +80,7 @@ class AsteroidSchedule(FormView):
 def update_status(req):
     status = check_request_api(req.track_num)
     if not status:
+        logger.debug('No response for {}'.format(req.track_num))
         return False
     logger.debug(status['requests'][0]['windows'][0]['end'])
     req.status = state_options.get(status['state'],'U')
