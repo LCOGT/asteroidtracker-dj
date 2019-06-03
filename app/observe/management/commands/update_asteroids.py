@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write("==== Updating Asteroids %s  ====" % (datetime.now().strftime('%Y-%m-%d %H:%M')))
-        tmp_dir = settings.MEDIA_ROOT
+
         for ast in Asteroid.objects.filter(active=True):
             num_images = 5
             tmpdir = tempfile.mkdtemp()
