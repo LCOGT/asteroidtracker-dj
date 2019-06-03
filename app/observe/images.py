@@ -134,11 +134,11 @@ def make_timelapse(target, file_dir, format="mp4"):
     files = glob.glob(path)
     if files:
         if format == 'mp4':
-            outfile = '{}.mp4'.format(target.replace(" ", "").replace("(", "").replace(")", ""))
+            outfile = '{}_new.mp4'.format(target.replace(" ", "").replace("(", "").replace(")", ""))
             outfile = os.path.join(file_dir, outfile)
             video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libx264 -f mp4 -pix_fmt yuv420p {} -y".format(path, outfile)
         elif format == 'webm':
-            outfile = '{}.webm'.format(target.replace(" ", "").replace("(", "").replace(")", ""))
+            outfile = '{}_new.webm'.format(target.replace(" ", "").replace("(", "").replace(")", ""))
             outfile = os.path.join(file_dir, outfile)
             video_options = "ffmpeg -framerate 10 -pattern_type glob -i '{}' -vf 'scale=2*iw:-1, crop=iw/2:ih/2' -s 696x520 -vcodec libvpx-vp9 -f webm {} -y".format(path, outfile)
 
@@ -154,9 +154,12 @@ def make_timelapse(target, file_dir, format="mp4"):
 def combine_timelapses(path, outfile, format):
     path_exp = os.path.join(path,"*.{}".format(format))
     files = glob.glob(path_exp)
-    files.sort() #need the 0_oldtimelapse file at the start
-    concat_str = "concat:{}".format("|".join(files))
-    video_options = "ffmpeg -i \"{}\" -safe 0 -c copy {} -y".format(concat_str, outfile)
+    concat_file = os.path.join(path,"concat.txt")
+    with open(concat_file, 'w') as f:
+        for file in files:
+            f.write("file '{}'\n".format(file))
+
+    video_options = 'ffmpeg -f concat -safe 0 -i "{}" -c:v copy -c:a copy {}'.format(concat_file, outfile)
     try:
         output = subprocess.check_output(
             video_options, stderr=subprocess.STDOUT, shell=True, timeout=30,
@@ -169,7 +172,7 @@ def combine_timelapses(path, outfile, format):
     return
 
 def download_timelapse(filename, download_dir, format):
-    f = default_storage.open(filename.name,'r')
+    f = default_storage.open(filename.name,'rb')
     with open(os.path.join(download_dir, '0_oldtimelapse.{}'.format(format)), 'wb+') as new_file:
         new_file.write(f.read())
     f.close()
@@ -192,6 +195,7 @@ def timelapse_overseer(ast_id, dir):
     for format in (('mp4','timelapse_mpeg'), ('webm','timelapse_webm')):
         outfile = make_timelapse(asteroid.name, dir, format=format[0])
         if outfile:
+            outfile = outfile.replace('_new','')
             if getattr(asteroid,format[1]):
                 oldtimelapse = download_timelapse(filename=getattr(asteroid,format[1]), download_dir=dir, format=format[0])
                 outfile = combine_timelapses(dir, outfile, format[0])

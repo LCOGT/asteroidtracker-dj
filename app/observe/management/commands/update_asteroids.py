@@ -18,4 +18,5 @@ class Command(BaseCommand):
             num_images = 5
             tmpdir = tempfile.mkdtemp()
             timelapse_overseer(ast_id=ast.id, dir=tmpdir)
-            shutil.rmtree(tmpdir)
+            if not settings.DEBUG:
+                shutil.rmtree(tmpdir)
