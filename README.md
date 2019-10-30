@@ -13,6 +13,12 @@ The app is visible at [Asteroid Tracker](https://asteroidtracker.lco.global/).
 This project is built automatically by the [LCO Jenkins Server](http://jenkins.lco.gtn/).
 Please see the [Jenkinsfile](Jenkinsfile) for more details.
 
+
+It may also be built locally:
+```
+make docker-build
+```
+
 ## Production Deployment
 
 This project is deployed on the LCO Kubernetes Cluster. Please refer to the
