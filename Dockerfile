@@ -10,7 +10,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN apk --no-cache add libjpeg-turbo mariadb-connector-c zlib libgomp ffmpeg \
         && apk --no-cache add --virtual .build-deps gcc g++ git mariadb-dev musl-dev zlib-dev \
-        && pip --no-cache-dir --trusted-host=buildsba.lco.gtn install -r requirements.txt \
+        && pip --no-cache-dir install -r requirements.txt \
         && apk --no-cache del .build-deps
 
 # install application
